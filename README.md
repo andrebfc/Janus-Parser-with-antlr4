@@ -15,7 +15,7 @@ This is a simple guide to using Janus parser.
 
 ## COMPILE
 
-Into JanusParser folder use 'make' command to compile.
+Into 'src' folder use 'make' command to compile.
 
 ## STARTING PARSING
 
@@ -32,7 +32,11 @@ After the parsing use './out' command to exec program.
 ## EXAMPLE
 
     //after INSTALLATION
-    cd ./Janus/JanusParser
+    cd ./Janus-Parser-with-antlr4/src/
     make
-    java janus fibonacci.jan
-    ./out
+    java janus fibonacci.jan // start parsing
+    cd out
+    make // for queue structure
+    cd .. // return to src directory   
+    ./outexe // lunch program
+
