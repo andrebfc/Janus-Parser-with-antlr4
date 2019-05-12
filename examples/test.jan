@@ -1,0 +1,10 @@
+procedure root(int a, int b)
+    print a
+    print b
+
+procedure main()
+    int a
+    int b
+    a += 1
+    b += 2
+    call root(a,b)
