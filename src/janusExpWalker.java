@@ -116,24 +116,53 @@ public class janusExpWalker extends janusBaseListener {
     }
 
     public void enterPrint(janusParser.PrintContext ctx){
-        gc.setPrint(ctx.value().getText(),indent);
+        if(ctx.tagName()!=null){
+            if(threadArg){//arg to thread
+                gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+            }
+            else {
+                gc.setPrint(ctx.tagName().getText() + "->" + ctx.value().getText(), indent);
+            }
+        }
+        else {
+            gc.setPrint(ctx.value().getText(), indent);
+        }
     }
 
     public void enterMsgpass(janusParser.MsgpassContext ctx){
-
+        String type = "";
 
         if(ctx.typemsg().getText().compareTo("ssend") == 0){
-            gc.setMsgpass("srcv",ctx.variableName().getText(),ctx.port().getText(),indent);
+            //gc.setMsgpass("srcv",ctx.variableName().getText(),ctx.port().getText(),indent);
+            type = "srcv";
         }
         else if(ctx.typemsg().getText().compareTo("srcv") == 0){
-            gc.setMsgpass("ssend",ctx.variableName().getText(),ctx.port().getText(),indent);
+            //gc.setMsgpass("ssend",ctx.variableName().getText(),ctx.port().getText(),indent);
+            type = "ssend";
         }
         else if(ctx.typemsg().getText().compareTo("asend") == 0){
-            gc.setMsgpass("arcv",ctx.variableName().getText(),ctx.port().getText(),indent);
+            //gc.setMsgpass("arcv",ctx.variableName().getText(),ctx.port().getText(),indent);
+            type = "asend";
         }
         else if(ctx.typemsg().getText().compareTo("arcv") == 0){
-            gc.setMsgpass("asend",ctx.variableName().getText(),ctx.port().getText(),indent);
+            //gc.setMsgpass("asend",ctx.variableName().getText(),ctx.port().getText(),indent);
+            type = "arcv";
         }
+
+
+        if(ctx.tagName() != null){
+            if(threadArg){//arg to thread
+                //gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+                gc.setMsgpass(type, "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+            }
+            else{ // if not a thread
+                gc.setMsgpass(type, ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText(), indent);
+            }
+        }
+        else {
+            gc.setMsgpass(type, ctx.variableName().getText(), ctx.port().getText(), indent);
+        }
+
     }
 
     public void enterStruct(janusParser.StructContext ctx){
