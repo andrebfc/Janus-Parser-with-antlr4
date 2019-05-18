@@ -360,13 +360,34 @@ public class janusWriteF extends janusBaseListener {
     //print
     public void enterPrint(janusParser.PrintContext ctx){
         if(numfaj < 1) {//fork and join
-            gc.setPrint(ctx.value().getText(), indent);
+            if(ctx.tagName()!=null){
+                if(threadArg){//arg to thread
+                    gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+                }
+                else {
+                    gc.setPrint(ctx.tagName().getText() + "->" + ctx.value().getText(), indent);
+                }
+            }
+            else {
+                gc.setPrint(ctx.value().getText(), indent);
+            }
         }
     }
 
     public void enterMsgpass(janusParser.MsgpassContext ctx){
         if(numfaj < 1){//fork and join
-            gc.setMsgpass(ctx.typemsg().getText(),ctx.variableName().getText(),ctx.port().getText(),indent);
+            if(ctx.tagName() != null){
+                if(threadArg){//arg to thread
+                    //gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+                    gc.setMsgpass(ctx.typemsg().getText(), "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+                }
+                else{ // if not a thread
+                    gc.setMsgpass(ctx.typemsg().getText(), ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText(), indent);
+                }
+            }
+            else {
+                gc.setMsgpass(ctx.typemsg().getText(), ctx.variableName().getText(), ctx.port().getText(), indent);
+            }
         }
     }
 
@@ -394,9 +415,9 @@ public class janusWriteF extends janusBaseListener {
     public void exitForkandjoin(janusParser.ForkandjoinContext ctx){
 
         numfaj--;
-        if(numfaj <= 1) {
-            gc.setJoinThread(indent,countforkandjoin + nidfork);
-        }
+        //if(numfaj <= 1) {
+            //gc.setJoinThread(indent,countforkandjoin + nidfork);
+        //}
     }
 
 
