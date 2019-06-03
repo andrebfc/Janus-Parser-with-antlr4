@@ -88,6 +88,7 @@ condition : '('? value opcondition value ')'?
 
 assignmentExpression : value assignmentOperator value
                      | tagName'.'value assignmentOperator value //this for struct
+                     //variableName assignmentOperator value
                      ;
 
 paramDecFun : type variableName array?
@@ -106,12 +107,14 @@ arguments : variableName array?
           ;
 
 print : 'print' value
+      | 'print' tagName'.'value
       ;
 
 struct : 'struct' tagName paramDeclare 'end'
        ;
 
 msgpass : typemsg '(' variableName ',' port ')'
+        | typemsg '(' tagName'.'value ',' port ')'
         ;
 
 typemsg : 'ssend' | 'srcv' | 'asend' | 'arcv'
@@ -149,6 +152,7 @@ value : variableName array?
 
 variableName : Text
              | TextDigit
+             //| tagName'.'value
              ;
 
 local : 'local'
