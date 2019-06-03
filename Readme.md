@@ -6,6 +6,8 @@ This is a simple guide to using Janus parser.
 
 - Install atlr4 grammar from this https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
 
+(requires some exports and aliases, see website above)
+
 - Install c++ compiler.
 
 # USE PARSER
