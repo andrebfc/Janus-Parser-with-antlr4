@@ -14,11 +14,13 @@ public class janusWriteB extends janusBaseListener{
     ParseTreeWalker walker = new ParseTreeWalker();
     int nidfork = 0;
     int depth = 0;
-
+    int type_msg_memory = 0;
 
     //constructor
-    janusWriteB(genereteCode genCode){
+    janusWriteB(genereteCode genCode,int ind,int tmm){
         this.gc = genCode;
+        this.indent = ind;
+        this.type_msg_memory = tmm;
     }
 
     //constructor
@@ -28,6 +30,8 @@ public class janusWriteB extends janusBaseListener{
         this.nidfork = nf;
         this.depth = d;
     }
+
+
 
     public void enterPortDeclare(janusParser.PortDeclareContext ctx){
         gc.setInitPort(ctx.port().getText(),indent);
@@ -100,12 +104,12 @@ public class janusWriteB extends janusBaseListener{
 
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.IfConstructorContext") == 0){ //if constructor case
 
-                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent);
+                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory);
                 walker.walk(jiw,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.LoopConstructorContext") == 0){ // loop case
 
-                janusLoopWalker jlW = new janusLoopWalker(gc,indent);
+                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory);
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
@@ -114,11 +118,10 @@ public class janusWriteB extends janusBaseListener{
             }
             else { // qualsiasi altra cosa quando non è Block Context
 
-                janusExpWalker jew = new janusExpWalker(gc,indent);
+                janusExpWalker jew = new janusExpWalker(gc,indent,type_msg_memory);
                 walker.walk(jew,parseTree);
 
             }
-
 
         }
     }

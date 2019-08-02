@@ -9,17 +9,21 @@ public class janusExpWalker extends janusBaseListener {
     boolean structPass = true;
     boolean threadArg = false;
 
+    int type_msg_memory = 0;
+
     //constructor
-    janusExpWalker(genereteCode genCode, int ind){
+    janusExpWalker(genereteCode genCode, int ind,int tmm){
         this.gc = genCode;
         this.indent = ind;
+        this.type_msg_memory = tmm;
     }
 
     //constructor for argument struct thread
-    janusExpWalker(genereteCode genCode, int ind,boolean ta){
+    janusExpWalker(genereteCode genCode, int ind,boolean ta,int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.threadArg = ta;
+        this.type_msg_memory = tmm;
     }
 
     //Param Declare
@@ -78,7 +82,13 @@ public class janusExpWalker extends janusBaseListener {
         if(ctx.tagName() != null){
             //for struct notation, namestruct->value
             if(threadArg){//arg to thread
-                gc.setAssignmentExpression("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value(0).getText(),ctx.assignmentOperator().getText(),ctx.value(1).getText(),1,indent);//1 = reverse
+                if(type_msg_memory == 0) { // 0 = message passing local struct
+                    gc.setAssignmentExpression(ctx.tagName().getText() + "." + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
+
+                }
+                else { // type_msg_memory = 1 => shared memory
+                    gc.setAssignmentExpression("((struct " + ctx.tagName().getText() + "*)arg)->" + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
+                }
             }
             else{
                 gc.setAssignmentExpression(ctx.tagName().getText() + "->" + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
@@ -118,7 +128,14 @@ public class janusExpWalker extends janusBaseListener {
     public void enterPrint(janusParser.PrintContext ctx){
         if(ctx.tagName()!=null){
             if(threadArg){//arg to thread
-                gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+                if(type_msg_memory == 0) { // 0 = message passing local struct
+                    gc.setPrint(ctx.tagName().getText()+"." + ctx.value().getText(),indent);
+
+                }
+                else{// type_msg_memory = 1 => shared memory
+                    gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+
+                }
             }
             else {
                 gc.setPrint(ctx.tagName().getText() + "->" + ctx.value().getText(), indent);
@@ -153,7 +170,14 @@ public class janusExpWalker extends janusBaseListener {
         if(ctx.tagName() != null){
             if(threadArg){//arg to thread
                 //gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
-                gc.setMsgpass(type, "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+                if(type_msg_memory == 0) { // 0 = message passing local struct
+                    gc.setMsgpass(type, ctx.tagName().getText()+"." + ctx.value().getText(), ctx.port().getText(), indent);
+
+                }
+                else{// type_msg_memory = 1 => shared memory
+                    gc.setMsgpass(type, "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+
+                }
             }
             else{ // if not a thread
                 gc.setMsgpass(type, ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText(), indent);

@@ -14,7 +14,24 @@ public class genereteCode {
 
     genereteCode() throws IOException {
 
-        file = new File("./out/out.cpp");
+
+
+    }
+
+    genereteCode(String fileName) throws IOException {
+
+
+        /*
+        file = new File(fileName);
+
+        if(!file.exists()) {
+            file.createNewFile();
+        }
+        */
+    }
+
+    public void initFile(String fileName) throws IOException {
+        file = new File("./out/" + fileName + ".cpp");
 
         if(!file.exists()) {
             file.createNewFile();
@@ -26,20 +43,6 @@ public class genereteCode {
         file.setWritable(true);
         file.setReadable(true);
         file.setExecutable(true);
-
-    }
-
-    genereteCode(String fileName) throws IOException {
-
-
-
-
-        file = new File(fileName);
-
-        if(!file.exists()) {
-            file.createNewFile();
-        }
-
     }
 
     public void checkExtension(String s){
@@ -396,6 +399,16 @@ public class genereteCode {
     public void initStruct(String name,int indent){
         this.setTab(indent);
         this.appendStrToFile("struct " + name + " *" + name + "=(struct "+name+"*)malloc(sizeof(struct "+name+"));\n\n");
+    }
+
+    public void setLocalStruct(String struct_name,int indent){
+        this.setTab(indent);
+        this.appendStrToFile("struct " + struct_name + " " + struct_name + ";\n");
+    }
+
+    public void setCpyStruct(String struct_name, int indent){
+        this.setTab(indent);
+        this.appendStrToFile("memcpy(&" + struct_name + ",(struct " + struct_name + "*)arg,sizeof(" + struct_name + "));\n");
     }
 
     public void appendStrToFile(String str) {

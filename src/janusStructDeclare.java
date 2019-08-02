@@ -3,6 +3,7 @@ public class janusStructDeclare extends janusBaseListener{
     genereteCode gc;
     int indent = 0;
     boolean pass = false;
+    String nameStruct;
 
     //constructor
     janusStructDeclare(genereteCode genCode){
@@ -11,6 +12,7 @@ public class janusStructDeclare extends janusBaseListener{
 
     public void enterStruct(janusParser.StructContext ctx){
             pass = true;
+            nameStruct = ctx.tagName().getText();
             gc.setStruct(ctx.tagName().getText());
             indent++;
 
@@ -34,6 +36,9 @@ public class janusStructDeclare extends janusBaseListener{
         }
     }
 
+    public String getStructName(){
 
+        return nameStruct;
+    }
 
 }

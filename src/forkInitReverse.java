@@ -10,13 +10,16 @@ public class forkInitReverse extends janusBaseListener{
     int fatherfork = 0;
     boolean pass = false;
 
+    int type_msg_memory = 0;
+
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree parseTree;
 
     //constructor
-    forkInitReverse(genereteCode genCode, int ind){
+    forkInitReverse(genereteCode genCode, int ind,int tmm){
         this.gc = genCode;
         this.indent = ind;
+        this.type_msg_memory = tmm;
     }
 
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
@@ -29,6 +32,11 @@ public class forkInitReverse extends janusBaseListener{
 
         gc.setSingleFork(countForkandjoin,1);
         //block 0
+        //set and copy struct for local message passing
+        if(ctx.tagName() != null && type_msg_memory == 0){ //tagName is struct argument
+            gc.setLocalStruct(ctx.tagName().getText(),indent);
+            gc.setCpyStruct(ctx.tagName().getText(),indent);
+        }
 
         int childCount = ctx.block(0).getChildCount();
         childCount--;
@@ -58,6 +66,12 @@ public class forkInitReverse extends janusBaseListener{
         gc.setSingleFork(countForkandjoin,1);
 
         //block 1
+        //set and copy struct for local message passing
+        if(ctx.tagName() != null && type_msg_memory == 0){ //tagName is struct argument
+            gc.setLocalStruct(ctx.tagName().getText(),indent);
+            gc.setCpyStruct(ctx.tagName().getText(),indent);
+        }
+
         childCount = ctx.block(1).getChildCount();
         childCount--;
         while (childCount >= 0) { // have child expression
@@ -79,11 +93,11 @@ public class forkInitReverse extends janusBaseListener{
                 getContext(parseTree.getChild(0)); // HA DUE FIGLI
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.IfConstructorContext") == 0){ //if constructor case
-                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent);
+                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory);
                 walker.walk(jiw,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.LoopConstructorContext") == 0){ // loop case
-                janusLoopWalker jlW = new janusLoopWalker(gc,indent);
+                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory);
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
@@ -91,7 +105,7 @@ public class forkInitReverse extends janusBaseListener{
                 return;
             }
             else {
-                janusExpWalker jew = new janusExpWalker(gc,indent,true); // true for argument thread
+                janusExpWalker jew = new janusExpWalker(gc,indent,true,type_msg_memory); // true for argument thread
                 walker.walk(jew,parseTree);
             }
 

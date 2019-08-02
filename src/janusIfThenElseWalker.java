@@ -8,11 +8,13 @@ public class janusIfThenElseWalker extends janusBaseListener {
     int indent;
     private int depth = 0;
     ParseTreeWalker walker = new ParseTreeWalker();
+    int type_msg_memory = 0;
 
 
-    janusIfThenElseWalker(genereteCode genCode, int ind){
+    janusIfThenElseWalker(genereteCode genCode, int ind,int tmm){
         this.gc = genCode;
         this.indent = ind;
+        this.type_msg_memory = tmm;
     }
 
     public void enterIfConstructor(janusParser.IfConstructorContext ctx){
@@ -121,11 +123,11 @@ public class janusIfThenElseWalker extends janusBaseListener {
                 getContext(parseTree.getChild(0));
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.IfConstructorContext") == 0){ //if constructor case
-                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent);
+                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory);
                 walker.walk(jiw,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.LoopConstructorContext") == 0){ // loop case
-                janusLoopWalker jlW = new janusLoopWalker(gc,indent);
+                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory);
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
@@ -133,7 +135,7 @@ public class janusIfThenElseWalker extends janusBaseListener {
                 walker.walk(jFW,parseTree);
             }
             else {
-                janusExpWalker jew = new janusExpWalker(gc,indent);
+                janusExpWalker jew = new janusExpWalker(gc,indent,type_msg_memory);
                 walker.walk(jew,parseTree);
             }
 

@@ -75,7 +75,7 @@ elseExpression : 'else' block
 fiExpression : 'fi' condition
              ;
 
-forkandjoin : 'fork' tagName? block 'and' block 'join'
+forkandjoin : 'fork' tagName? block 'and' block 'join' // tagName is struct argument
             ;
 
 functionCall : call tagName '(' arguments? ')'

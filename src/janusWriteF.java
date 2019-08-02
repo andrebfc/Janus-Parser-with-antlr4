@@ -16,23 +16,27 @@ public class janusWriteF extends janusBaseListener {
     int countforkandjoin = 0;
     int nidfork = 0;
     int depth = 0;
+    int type_msg_memory = 0;
+    int dec_struct_mp = 1; // struct declare for message passing local memory
     boolean structPass = true;
     static int numfaj = 0;
     boolean threadArg = false;
 
     //constructor
-    janusWriteF(genereteCode genCode, int ind){
+    janusWriteF(genereteCode genCode, int ind,int tmm){
         this.gc = genCode;
         this.indent = ind;
+        this.type_msg_memory = tmm;
     }
 
     //constructor
-    janusWriteF(genereteCode genCode, int ind, int nf, int d, boolean ta){
+    janusWriteF(genereteCode genCode, int ind, int nf, int d, boolean ta,int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.nidfork = nf;
         this.depth = d;
         this.threadArg = ta; // for struct argument to thread
+        this.type_msg_memory = tmm;
 
     }
 
@@ -244,7 +248,12 @@ public class janusWriteF extends janusBaseListener {
             if(ctx.tagName() != null){
                 //for struct notation, namestruct->value
                 if(threadArg){//arg to thread
-                    gc.setAssignmentExpression("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value(0).getText(),ctx.assignmentOperator().getText(),ctx.value(1).getText(),0,indent);//0=forwar
+                    if(type_msg_memory == 0) { // 0 = message passing local struct
+                        gc.setAssignmentExpression(ctx.tagName().getText()+"." + ctx.value(0).getText(),ctx.assignmentOperator().getText(),ctx.value(1).getText(),0,indent);//0=forwar
+                    }
+                    else{//type_msg_memory = 1 = shared memory
+                        gc.setAssignmentExpression("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value(0).getText(),ctx.assignmentOperator().getText(),ctx.value(1).getText(),0,indent);//0=forwar
+                    }
                 }
                 else {//tag for function
                     gc.setAssignmentExpression(ctx.tagName().getText() + "->" + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 0, indent);//0=forward
@@ -362,7 +371,12 @@ public class janusWriteF extends janusBaseListener {
         if(numfaj < 1) {//fork and join
             if(ctx.tagName()!=null){
                 if(threadArg){//arg to thread
-                    gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
+                    if(type_msg_memory == 0) { // 0 = message passing local struct
+                        gc.setPrint(ctx.tagName().getText() + "." + ctx.value().getText(),indent);
+                    }
+                    else {//type_msg_memory = 1 = shared memory
+                        gc.setPrint("((struct " + ctx.tagName().getText() + "*)arg)->" + ctx.value().getText(), indent);
+                    }
                 }
                 else {
                     gc.setPrint(ctx.tagName().getText() + "->" + ctx.value().getText(), indent);
@@ -379,7 +393,14 @@ public class janusWriteF extends janusBaseListener {
             if(ctx.tagName() != null){
                 if(threadArg){//arg to thread
                     //gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
-                    gc.setMsgpass(ctx.typemsg().getText(), "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+                    if(type_msg_memory == 0){ // 0 = message passing local struct
+
+                        gc.setMsgpass(ctx.typemsg().getText(), ctx.tagName().getText()+ "." + ctx.value().getText(), ctx.port().getText(), indent);
+                    }
+                    else{ //type_msg_memory = 1 = shared memory
+                        gc.setMsgpass(ctx.typemsg().getText(), "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
+                    }
+
                 }
                 else{ // if not a thread
                     gc.setMsgpass(ctx.typemsg().getText(), ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText(), indent);
