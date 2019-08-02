@@ -6,8 +6,6 @@ This is a simple guide to using Janus parser.
 
 - Install atlr4 grammar from this https://github.com/antlr/antlr4/blob/master/doc/getting-started.md
 
-(requires some exports and aliases, see website above)
-
 - Install c++ compiler.
 
 # USE PARSER
@@ -26,7 +24,7 @@ To start parsing use this command:
      
 ## RUN
 
-After the parsing use './out' command to exec program.
+After the parsing use './filename' command to exec program.
 
 ## EXAMPLE
 
@@ -36,8 +34,6 @@ After the parsing use './out' command to exec program.
     antlr4 janus.g4                     // create java parser files
     make                                // compile java files
     java janus fibonacci.jan            // start parsing
-    cd out                              // enter out folder
-    make                                // compile c program with queue structure
     ./out                               // lunch program
     
     
