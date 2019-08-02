@@ -164,6 +164,14 @@ Fork and Join constructor allows the user to passing data in P1 and P2 using 'st
 
 ### Message passing
 
+There are two way to use message passing, the first is message passing with local memory, this is a default option or 
+activable with -m flag. The sencond way is message passing with shared memory, where the struct on the thread are shared, 
+this option is activable with -s flag.
+
+Example:
+
+    java janus fibonacci.jan -s  
+
 The message passing mechanism can be used in a way synchronous or asynchronous using ports. The port is queues of message.
 
 For synchronous message passing it's possible to use ssend(x,p) function where the value 'x' is sent via the 'p' port, 
