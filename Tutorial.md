@@ -188,6 +188,27 @@ To print a value:
     print [Var]
 or
     print ([Var])
+    
+If you want to be sure to see the printed value when using the fork and join, you must use the -j flag to wail all processes.
+
+## Local and shared memory
+
+On this janus interpreter is possible to select type of memory on processes. 
+
+In local memory (default) the 'fork and join' processes make a copy of the scructure and use this, you can use this option using the -m flag or nothing in the parsing phase.
+
+Example:
+    
+    java janus [filename.jan] 
+or
+
+    java janus [filename.jan] -m
+
+In shared memory the 'fork and join' processes use a pointer to struct, on this mode the data are shared, for this option using the -s flag.
+
+Example: 
+
+     java janus [filename.jan] -s
 
 ## Expressions
 
