@@ -12,14 +12,14 @@ public class janusExpWalker extends janusBaseListener {
     int type_msg_memory = 0;
 
     //constructor
-    janusExpWalker(genereteCode genCode, int ind,int tmm){
+    janusExpWalker(genereteCode genCode, int ind, int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
     }
 
     //constructor for argument struct thread
-    janusExpWalker(genereteCode genCode, int ind,boolean ta,int tmm){
+    janusExpWalker(genereteCode genCode, int ind, boolean ta, int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.threadArg = ta;
@@ -30,9 +30,18 @@ public class janusExpWalker extends janusBaseListener {
     public void enterParamDeclare(janusParser.ParamDeclareContext ctx) {
         if (structPass) {
             if (ctx.value() != null) {
-                if (ctx.array() != null) {
+                if (ctx.array() != null) { // if is array
                     gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 1);
-                } else {
+                }
+                else if(ctx.value().tagName() != null) { // if is value of struct
+                    if (threadArg && type_msg_memory == 0) {
+                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),ctx.value().tagName().getText()+"."+ctx.value().value(0).getText(),indent,0);
+                    }
+                    else if(threadArg && type_msg_memory == 1){
+                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),"((struct " + ctx.value().tagName().getText()+"*)arg)->"+ctx.value().value(0).getText(), indent, 0);
+                    }
+                }
+                else {
                     gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 0);
                 }
             } else {
@@ -52,13 +61,32 @@ public class janusExpWalker extends janusBaseListener {
                 if(ctx.array() != null) {
                     gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent,1);
                 }
+                else if(ctx.value().tagName() != null){ // if is struct value
+                    if(threadArg && type_msg_memory == 0){
+                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),ctx.value().tagName().getText()+"."+ctx.value().value(0).getText(), indent, 0);
+                    }
+                    else if(threadArg && type_msg_memory == 1){
+                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),"((struct " + ctx.value().tagName().getText()+"*)arg)->"+ctx.value().value(0).getText(), indent, 0);
+
+                    }
+                }
                 else{
                     gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent,0);
                 }
             }
             else{//local => assert
                 //gc.setAssertCondition(ctx.variableName().getText(),ctx.assignmentOperator().getText(),ctx.value().getText(),0,indent);//on janus.g4 chang asssignmentoOperetator to opcondition
-                gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),ctx.value().getText(),0,indent);//for delocal, is a condition assert
+                if(ctx.value().tagName() != null) { // if is struct value
+                    if (threadArg && type_msg_memory == 0) {
+                        gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),ctx.value().tagName().getText() + "." + ctx.value().value(0).getText(),0,indent);//for delocal, is a condition assert
+                    } else if (threadArg && type_msg_memory == 1) {
+                        gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),"((struct " + ctx.value().tagName().getText() + "*)arg)->" + ctx.value().value(0).getText(),0,indent);//for delocal, is a condition assert
+                    }
+                }
+                else{
+                    gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),ctx.value().getText(),0,indent);//for delocal, is a condition assert
+
+                }
             }
         }
         else{
@@ -79,6 +107,7 @@ public class janusExpWalker extends janusBaseListener {
 
     //Assignment Expression
     public void enterAssignmentExpression(janusParser.AssignmentExpressionContext ctx){
+        /*
         if(ctx.tagName() != null){
             //for struct notation, namestruct->value
             if(threadArg){//arg to thread
@@ -97,7 +126,60 @@ public class janusExpWalker extends janusBaseListener {
         else {
             gc.setAssignmentExpression(ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent); // 1 = reverse
         }
+        */
+        if(ctx.value(0).tagName() != null || ctx.value(1).tagName() != null){
+            String lvalue;
+            String rvalue;
+            if(threadArg) {
+                if (type_msg_memory == 0) {//arg to thread, 0 = message passing local struct
+                    if (ctx.value(0).tagName() != null) {
+                        lvalue = ctx.value(0).tagName().getText() + "." + ctx.value(0).value(0).getText();
+                    } else {
+                        lvalue = ctx.value(0).getText();
+                    }
+                    if (ctx.value(1).tagName() != null) {
+                        rvalue = ctx.value(1).tagName().getText() + "." + ctx.value(1).value(0).getText();
+                    } else {
+                        rvalue = ctx.value(1).getText();
+                    }
+                    gc.setAssignmentExpression(lvalue, ctx.assignmentOperator().getText(), rvalue, 1, indent);// 1 = reverse
+                } else if (type_msg_memory == 1) {//arg to thread, 1 = message passing shared struct
+                    if (ctx.value(0).tagName() != null) {
+                        lvalue = "((struct " + ctx.value(0).tagName().getText() + "*)arg)->" + ctx.value(0).value(0).getText();
+                    } else {
+                        lvalue = ctx.value(0).getText();
+                    }
+                    if (ctx.value(1).tagName() != null) {
+                        rvalue = "((struct " + ctx.value(1).tagName().getText() + "*)arg)->" + ctx.value(1).value(0).getText();
+                    } else {
+                        rvalue = ctx.value(1).getText();
+                    }
+                    gc.setAssignmentExpression(lvalue, ctx.assignmentOperator().getText(), rvalue, 1, indent);// 1 = reverse
+                }
+            }
+            else {//tag for function
+                if(ctx.value(0).tagName() != null){
+                    lvalue = ctx.value(0).tagName().getText() + "->" + ctx.value(0).value(0).getText();
+                }
+                else{
+                    lvalue = ctx.value(0).getText();
+                }
+                if(ctx.value(1).tagName() != null){
+                    rvalue = ctx.value(1).tagName().getText() + "->" + ctx.value(1).value(0).getText();
+                }
+                else{
+                    rvalue = ctx.value(1).getText();
+                }
+                gc.setAssignmentExpression(lvalue,ctx.assignmentOperator().getText(),rvalue,1,indent);// 1 = reverse
+
+            }
+        }
+        else {
+            gc.setAssignmentExpression(ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent); // 1 = reverse
+        }
+
     }
+
 
 
     //functionCall
@@ -159,13 +241,12 @@ public class janusExpWalker extends janusBaseListener {
         }
         else if(ctx.typemsg().getText().compareTo("asend") == 0){
             //gc.setMsgpass("arcv",ctx.variableName().getText(),ctx.port().getText(),indent);
-            type = "asend";
+            type = "arcv";
         }
         else if(ctx.typemsg().getText().compareTo("arcv") == 0){
             //gc.setMsgpass("asend",ctx.variableName().getText(),ctx.port().getText(),indent);
-            type = "arcv";
+            type = "asend";
         }
-
 
         if(ctx.tagName() != null){
             if(threadArg){//arg to thread

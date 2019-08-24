@@ -11,7 +11,7 @@ public class forkInitForward extends janusBaseListener{
     int type_msg_memory = 0;
 
     //constructor
-    forkInitForward(genereteCode genCode, int ind,int tmm){
+    forkInitForward(genereteCode genCode, int ind, int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;

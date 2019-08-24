@@ -16,7 +16,7 @@ public class forkInitReverse extends janusBaseListener{
     ParseTree parseTree;
 
     //constructor
-    forkInitReverse(genereteCode genCode, int ind,int tmm){
+    forkInitReverse(genereteCode genCode, int ind, int tmm){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
@@ -93,11 +93,11 @@ public class forkInitReverse extends janusBaseListener{
                 getContext(parseTree.getChild(0)); // HA DUE FIGLI
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.IfConstructorContext") == 0){ //if constructor case
-                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory);
+                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory,true); // true for argument thread
                 walker.walk(jiw,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.LoopConstructorContext") == 0){ // loop case
-                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory);
+                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory,true); // true for argument thread
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join

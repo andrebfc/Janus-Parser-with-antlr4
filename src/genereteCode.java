@@ -11,25 +11,23 @@ public class genereteCode {
 
     File file;
     int forkandjoinvar = 0;
-
+/*
     genereteCode() throws IOException {
-
-
 
     }
 
     genereteCode(String fileName) throws IOException {
 
 
-        /*
+
         file = new File(fileName);
 
         if(!file.exists()) {
             file.createNewFile();
         }
-        */
-    }
 
+    }
+*/
     public void initFile(String fileName) throws IOException {
         file = new File("./out/" + fileName + ".cpp");
 
@@ -293,10 +291,11 @@ public class genereteCode {
     }
 
     public void setJoinThread(int indent,int n){
-        this.setTab(indent);
-        this.appendStrToFile("pthread_join(p"+ (n-1) + ",NULL);\n");
-        this.setTab(indent);
-        this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
+
+        for(int i = 1; i <= n;i++){
+            this.setTab(indent);
+            this.appendStrToFile("pthread_join(p"+ i + ",NULL);\n");
+        }
     }
 
     public void setforkandjoinDeclare(int n,int flag){ // 0 = forward, 1 = reverse

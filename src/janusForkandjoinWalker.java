@@ -25,7 +25,6 @@ public class janusForkandjoinWalker extends janusBaseListener  {
             }
             else{
                 gc.setforkandjoin("NULL",indent, gc.getForkandjoinvar(), 1); // 1 = reverse
-
             }
             gc.setForkandjoinvar(countforkandjoin);
             //reset number fork and join for subtree

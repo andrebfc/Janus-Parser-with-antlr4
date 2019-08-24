@@ -11,26 +11,33 @@ public class janusWriteB extends janusBaseListener{
     List<String> typePar = new ArrayList<String>();
     List<String> namePar = new ArrayList<String>();
     int indent = 0;
+
+    //Parse for fork and join count
     ParseTreeWalker walker = new ParseTreeWalker();
+    ParseTree parseTree;
+
     int nidfork = 0;
     int depth = 0;
     int type_msg_memory = 0;
+    int join = 0; //  0 = no pthread_create
 
     //constructor
-    janusWriteB(genereteCode genCode,int ind,int tmm){
+    janusWriteB(genereteCode genCode, int ind, int tmm,int j){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
+        this.join = j;
     }
 
     //constructor
+    /*
     janusWriteB(genereteCode genCode, int ind, int nf, int d){
         this.gc = genCode;
         this.indent = ind;
         this.nidfork = nf;
         this.depth = d;
     }
-
+    */
 
 
     public void enterPortDeclare(janusParser.PortDeclareContext ctx){
@@ -53,6 +60,15 @@ public class janusWriteB extends janusBaseListener{
             getContext(parseTree);
             childCount--;
         }
+        //pthread join
+        if(join == 1) {
+            parseTree = ctx;
+            threadJoin tj = new threadJoin();
+            walker.walk(tj, parseTree);
+            int count = tj.getForkCount();
+            gc.setJoinThread(indent,count);
+        }
+
         indent--;
 
         gc.setExitFunction(indent);

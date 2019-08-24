@@ -1,7 +1,7 @@
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-
 import java.io.*;
+
 
 public class janus {
     public static void main(String[] args) throws Exception {
@@ -10,11 +10,12 @@ public class janus {
         String filename;
         int type_msg = 0; // 0 = message passing local struct, 1 = shared memory
         int main_rev = 0;
+        int join = 0; //0 = no pthread_join
 
         System.out.println("Starting parsing to " + args[0]);
 
 
-        genereteCode genCode = new genereteCode(args[0]);
+        genereteCode genCode = new genereteCode();
 
 
         genCode.checkExtension(args[0]);
@@ -28,6 +29,17 @@ public class janus {
             }
             else if (args[1].compareTo("-s") == 0){
                 type_msg = 1;
+            }
+            else if (args[1].compareTo("-j") == 0){
+                join = 1;
+            }
+            else if(args[1].compareTo("-mj") == 0 || args[1].compareTo("-jm") == 0){
+                type_msg = 0;
+                join = 1;
+            }
+            else if(args[1].compareTo("-sj") == 0 || args[1].compareTo("-js") == 0){
+                type_msg = 1;
+                join = 1;
             }
             else{
                 System.out.println("Incorrect option\n");
@@ -80,16 +92,16 @@ public class janus {
 
         genCode.setBlankLine();
         //forward
-        janusWriteF jWriterF = new janusWriteF(genCode,0,type_msg);
+        janusWriteF jWriterF = new janusWriteF(genCode,0,type_msg,join);
         walker.walk(jWriterF, tree);
 
         //reverse
-        janusWriteB jWriteB = new janusWriteB(genCode,0,type_msg);//type msg passing memory
+        janusWriteB jWriteB = new janusWriteB(genCode,0,type_msg,join);//type msg passing memory
         walker.walk(jWriteB, tree);
 
         //main
         ParseTree maintree = parser.mainFun();
-        janusWriteF jWriter = new janusWriteF(genCode,0,type_msg);
+        janusWriteF jWriter = new janusWriteF(genCode,0,type_msg,join);
         walker.walk(jWriter, maintree);
 
 

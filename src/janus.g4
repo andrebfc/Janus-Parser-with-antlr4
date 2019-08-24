@@ -87,8 +87,7 @@ condition : '('? value opcondition value ')'?
           ;
 
 assignmentExpression : value assignmentOperator value
-                     | tagName'.'value assignmentOperator value //this for struct
-                     //variableName assignmentOperator value
+                    // | tagName'.'value assignmentOperator value //this for struct
                      ;
 
 paramDecFun : type variableName array?
@@ -100,7 +99,6 @@ paramDeclare : type variableName array? assignmentOperator? value?
 
 localParamDeclare : local type variableName array? (opcondition value)?
                   ;
-
 
 arguments : variableName array?
           | variableName array? ',' arguments
@@ -145,6 +143,7 @@ logicalExpression : '&&' | '||' | '!';
 
 value : variableName array?
       | Digit
+      | tagName'.'value //this for struct
       | '(' value ')'
       | value operator value
       ;
