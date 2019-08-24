@@ -1,0 +1,27 @@
+//A janus example to sigle sender-receiver
+
+procedure first(int n)
+    port p
+    struct tosend
+        int n
+    end
+    tosend.n = n
+
+    fork tosend
+        local int a = tosend.n // = 0
+        // a = tosend
+        print a
+        ssend(a,p)
+        delocal int a = 0
+    and
+        local int b = 0
+        srcv(b,p)
+        print b
+        delocal int b = tosend.n
+    join
+    tosend.n = n
+
+procedure main()
+    int n
+    n = 50
+    call first(n)
