@@ -28,6 +28,10 @@ If you want to use 'print' function compile with -j option
 
 After the parsing use './filename' command to exec program.
 
+## OPT
+
+Use -h option to print option manual
+
 ## EXAMPLE
 
     //after INSTALLATION
