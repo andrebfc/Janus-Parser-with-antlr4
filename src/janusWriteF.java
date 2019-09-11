@@ -230,15 +230,16 @@ public class janusWriteF extends janusBaseListener {
                             gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 1);//set array
                         }
                         else if(ctx.value().tagName() != null){ // if is struct value
-                            if(threadArg && type_msg_memory == 0){
+                            if(threadArg && type_msg_memory == 0){ // message passing memory
                                 gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),ctx.value().tagName().getText()+"."+ctx.value().value(0).getText(), indent, 0);
                             }
-                            else if(threadArg && type_msg_memory == 1){
+                            else if(threadArg && type_msg_memory == 1){ // shared memory
                                 gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),"((struct " + ctx.value().tagName().getText()+"*)arg)->"+ctx.value().value(0).getText(), indent, 0);
 
                             }
                         }
                         else {
+
                             gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 0);
 
                         }

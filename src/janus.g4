@@ -6,7 +6,7 @@ program : functions? mainFun
         ;
 
 functions : function
-          | functions function
+          | function functions
           ;
 
 function : functionDeclaration portDeclare? block? //functionBody
