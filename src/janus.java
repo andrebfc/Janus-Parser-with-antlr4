@@ -161,8 +161,10 @@ public class janus {
         genCode.setBlankLine();
 
         //struct declaration
+        ParseTree maintree = parser.mainFun();
         janusStructDeclare structDeclare = new janusStructDeclare(genCode);
         walker.walk(structDeclare, tree);
+        walker.walk(structDeclare, maintree);
 
         //fork and join function forward
         forkInitForward forkin = new forkInitForward(genCode, 1, type_msg);//indent, //type msg passing memory
@@ -182,7 +184,7 @@ public class janus {
         walker.walk(jWriteB, tree);
 
         //main
-        ParseTree maintree = parser.mainFun();
+
         janusWriteF jWriter = new janusWriteF(genCode, 0, type_msg, join);
         walker.walk(jWriter, maintree);
 

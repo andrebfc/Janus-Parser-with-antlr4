@@ -12,14 +12,23 @@ functions : function
 function : functionDeclaration portDeclare? block? //functionBody
          ;
 
+/*
 mainFun : functionDeclaration portDeclare? block?
         ;
+*/
 
-functionDeclaration : procedure tagName '(' parametersDeclaration? ')'
+
+mainFun : 'procedure' 'main' '(' ')' portDeclare? block?
+        ;
+
+
+functionDeclaration : 'procedure' tagName '(' parametersDeclaration? ')'
                     ;
-
+/*
 procedure : 'procedure'
           ;
+*/
+
 
 //for the functions declaration
 parametersDeclaration : paramDecFun

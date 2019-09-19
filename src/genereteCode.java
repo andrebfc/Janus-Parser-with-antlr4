@@ -67,7 +67,7 @@ public class genereteCode {
             this.appendStrToFile("void " + funName+"_reverse" + "(");
         }
         else if (flag == 2){ // main
-            this.appendStrToFile("int " + funName + "(");
+            this.appendStrToFile("int " + funName + "(){\n");
         }
     }
 
