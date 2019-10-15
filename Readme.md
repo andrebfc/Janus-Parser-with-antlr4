@@ -37,11 +37,10 @@ Use -h option to print option manual
     //after INSTALLATION
     
     cd ./Janus-Parser-with-antlr4/src/
-    antlr4 src/janus.g4                     // create java parser files
-    make                                // compile java files
-    cd src/                             // enter source dir
-    java janus fibonacci.jan            // start parsing
-    ./out                               // lunch program
+    antlr4 src/janus.g4                    // create java parser files
+    make                                   // compile java files
+    ./janus.sh fibonacci.jan               // start parsing with script janus.sh
+    ./fibonacci                            // lunch program
     
 
 
