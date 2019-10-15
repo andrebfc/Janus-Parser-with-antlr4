@@ -29,7 +29,7 @@ public class genereteCode {
     }
 */
     public void initFile(String fileName) throws IOException {
-        file = new File("./out/" + fileName + ".cpp");
+        file = new File("./src/out/" + fileName + ".cpp");
 
         if(!file.exists()) {
             file.createNewFile();
@@ -147,6 +147,12 @@ public class genereteCode {
     //set Assignment Expression
     public void setAssignmentExpression(String lvalue, String op, String rvalue,int flag, int indent){ // flag: 0 = forward, 1 = reverse
         this.setTab(indent);
+        //assert for =
+        if(op.compareTo("=") == 0) {
+            this.appendStrToFile("assert(" + lvalue + " == 0);\n");
+            this.setTab(indent);
+        }
+        //this.setTab(indent);
         this.appendStrToFile(lvalue + " ");
         if(op.compareTo("<=>") == 0){
             this.appendStrToFile("^= "+rvalue+";\n");
@@ -284,18 +290,24 @@ public class genereteCode {
         this.setTab(indent);
         //this.appendStrToFile("pthread_create(&p" + n + ",NULL,program_" + n + type + ",NULL);\n\n");
         this.appendStrToFile("pthread_create(&p" + n + ",NULL,program_" + n + type + ","+ "(void *)" +arg + ");\n\n");
-        //this.setTab(indent);
-        //this.appendStrToFile("pthread_join(p"+ (n-1) + ",NULL);\n");
-        //this.setTab(indent);
-        //this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
+        this.setTab(indent);
+        this.appendStrToFile("pthread_join(p"+ (n-1) + ",NULL);\n");
+        this.setTab(indent);
+        this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
     }
 
     public void setJoinThread(int indent,int n){
-
+        /* for join after pthread_create
         for(int i = 1; i <= n;i++){
             this.setTab(indent);
             this.appendStrToFile("pthread_join(p"+ i + ",NULL);\n");
         }
+
+        this.setTab(indent);
+        this.appendStrToFile("pthread_join(p"+ (n-1) + ",NULL);\n");
+        this.setTab(indent);
+        this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
+        */
     }
 
     public void setforkandjoinDeclare(int n,int flag){ // 0 = forward, 1 = reverse

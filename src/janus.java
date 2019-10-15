@@ -2,7 +2,6 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import java.io.*;
 
-
 public class janus {
     public static void main(String[] args) throws Exception {
 
@@ -16,7 +15,7 @@ public class janus {
         int auto_run = 0; // 0 = no auto run
         // for not repeat option, es: set memory before msg and after share, opt -jms is not valid
         boolean set_type_msg = false;
-        boolean set_join = false;
+        boolean set_no_join = false;
         boolean set_no_compile = false;
         boolean set_auto_run = false;
 
@@ -29,11 +28,11 @@ public class janus {
             System.exit(0);
         }
 
-
+        //parsing arguments
         if (args.length > 1) {
             for (int i = 1; i < args.length; i++) {
                 if (args[i].charAt(0) == '-') {
-                    for (int j = 1; j < args[i].length(); j++) {
+                    for (int j = 1; j < args[i].length(); j++) {//only args[i]
                         if (args[i].charAt(j) == 'm') {
                             if (!set_type_msg) {
                                 type_msg = 0;
@@ -51,9 +50,9 @@ public class janus {
                                 System.exit(1);
                             }
                         } else if (args[i].charAt(j) == 'j') {
-                            if (!set_join) {
+                            if (!set_no_join) {
                                 join = 1;
-                                set_join = true;
+                                set_no_join = true;
                             } else {
                                 System.out.println("Incorrect option\n");
                                 System.exit(1);
@@ -81,7 +80,7 @@ public class janus {
                         }
                         else if (args[i].charAt(j) == 'h'){
                             // only help option is allow
-                            if (!set_type_msg && !set_join && !set_no_compile && !set_auto_run){
+                            if (!set_type_msg && !set_no_join && !set_no_compile && !set_auto_run){
                                 //System.out.println("stampo manuale opzioni ed esco");
                                 JanusHelp jh = new JanusHelp();
                                 jh.printHelp();
@@ -91,6 +90,10 @@ public class janus {
                                 System.out.println("Incorrect option\n");
                                 System.exit(1);
                             }
+                        }
+                        else{
+                            System.out.println("Incorrect option\n");
+                            System.exit(1);
                         }
                     }
                 }
@@ -129,7 +132,6 @@ public class janus {
         genCode.checkExtension(args[0]);
         filename = args[0].substring(args[0].lastIndexOf("/") + 1, args[0].lastIndexOf("."));
         genCode.initFile(filename);
-
         genCode.setInclude("#include <stdio.h>\n");
         genCode.setInclude("#include <assert.h>\n");
         genCode.setInclude("#include <math.h>\n");
@@ -140,61 +142,75 @@ public class janus {
 
         genCode.setInclude("#define limit "+ limit +"\n\n");
 
+
         janusLexer lexer = new janusLexer(new ANTLRFileStream(args[0]));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
+
         janusParser parser = new janusParser(tokens);
-        ParseTree tree = parser.functions();
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        //port and semaphore declaration
-        janusDecPort jWalkerP = new janusDecPort(genCode);
-        walker.walk(jWalkerP, tree);
+        //int toknum =
+        tokens.getNumberOfOnChannelTokens();
+        //System.out.println(toknum + " boh : " + tokens.getNumberOfOnChannelTokens());
+        //System.out.println("token text: " + tokens.get(1).getText());
 
-        //Forward and reverse function declaration
-        janusDecFun jWalkerF = new janusDecFun(genCode, 0); // 0 = forward
-        walker.walk(jWalkerF, tree);
+        ParseTree maintree;// = parser.mainFun();
+        //if first token is not main
+        if(tokens.get(1).getText().compareTo("main") != 0){
 
-        //fork and join declare, forward and reverse
-        forkDecProgram forkcount = new forkDecProgram(genCode);
-        walker.walk(forkcount, tree);
+            ParseTree tree = parser.functions();
 
-        genCode.setBlankLine();
+            //port and semaphore declaration
+            janusDecPort jWalkerP = new janusDecPort(genCode);
+            walker.walk(jWalkerP, tree);
 
-        //struct declaration
-        ParseTree maintree = parser.mainFun();
-        janusStructDeclare structDeclare = new janusStructDeclare(genCode);
-        walker.walk(structDeclare, tree);
-        walker.walk(structDeclare, maintree);
+            //Forward and reverse function declaration
+            janusDecFun jWalkerF = new janusDecFun(genCode, 0); // 0 = forward
+            walker.walk(jWalkerF, tree);
 
-        //fork and join function forward
-        forkInitForward forkin = new forkInitForward(genCode, 1, type_msg);//indent, //type msg passing memory
-        walker.walk(forkin, tree);
+            //fork and join declare, forward and reverse
+            forkDecProgram forkcount = new forkDecProgram(genCode);
+            walker.walk(forkcount, tree);
 
-        //fork and join function back
-        forkInitReverse forkinB = new forkInitReverse(genCode, 1, type_msg);//indent, //type msg passing memory
-        walker.walk(forkinB, tree);
+            genCode.setBlankLine();
 
-        genCode.setBlankLine();
-        //forward
-        janusWriteF jWriterF = new janusWriteF(genCode, 0, type_msg, join);
-        walker.walk(jWriterF, tree);
+            //struct declaration
+            //ParseTree maintree = parser.mainFun();
+            //maintree = parser.mainFun();
+            janusStructDeclare structDeclare = new janusStructDeclare(genCode);
+            walker.walk(structDeclare, tree);
+            //walker.walk(structDeclare, maintree);
 
-        //reverse
-        janusWriteB jWriteB = new janusWriteB(genCode, 0, type_msg, join);//type msg passing memory
-        walker.walk(jWriteB, tree);
+            //fork and join function forward, implements threads functions
+            forkInitForward forkin = new forkInitForward(genCode, 1, type_msg);//indent, //type msg passing memory
+            walker.walk(forkin, tree);
+
+            //fork and join function back, implements threads functions
+            forkInitReverse forkinB = new forkInitReverse(genCode, 1, type_msg, join);//generateCode, indent, type msg passing memory
+            walker.walk(forkinB, tree);
+
+            genCode.setBlankLine();
+            //forward
+            janusWriteF jWriterF = new janusWriteF(genCode, 0, type_msg, join);
+            walker.walk(jWriterF, tree);
+
+            //reverse
+            janusWriteB jWriteB = new janusWriteB(genCode, 0, type_msg, join);//type msg passing memory
+            walker.walk(jWriteB, tree);
+
+
+        }
 
         //main
-
-        janusWriteF jWriter = new janusWriteF(genCode, 0, type_msg, join);
-        walker.walk(jWriter, maintree);
+        maintree = parser.mainFun();
+        janusWriteF jWriterF = new janusWriteF(genCode, 0, type_msg, join);
+        walker.walk(jWriterF, maintree);
 
 
         //compile and execute c program
         if (no_compile == 0) { // ok to compile
             try {
-
-                Process process = Runtime.getRuntime().exec("make -C ./out/ FILENAME=" + filename, null);
-
+                Process process = Runtime.getRuntime().exec("make -C ./src/out/ FILENAME=" + filename, null);
                 StringBuilder output = new StringBuilder();
 
                 BufferedReader reader = new BufferedReader(

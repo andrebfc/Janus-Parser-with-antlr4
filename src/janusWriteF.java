@@ -18,7 +18,7 @@ public class janusWriteF extends janusBaseListener {
 
 
     int indent = 0;
-    int countforkandjoin = 0;
+    static int countforkandjoin = 0;
     int nidfork = 0;
     int depth = 0;
     int type_msg_memory = 0;
@@ -26,14 +26,16 @@ public class janusWriteF extends janusBaseListener {
     boolean structPass = true;
     static int numfaj = 0;
     boolean threadArg = false;
-    int join = 0; //0 = no pthread_join
+    int join = 0; //0 = write pthread_join
 
     //constructor
-    janusWriteF(genereteCode genCode, int ind, int tmm,int j){
+    janusWriteF(genereteCode genCode, int ind, int tmm, int j){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
         this.join = j;
+        //reset count fork and join
+        countforkandjoin = 0;
     }
 
     //constructor
@@ -44,14 +46,13 @@ public class janusWriteF extends janusBaseListener {
         this.depth = d;
         this.threadArg = ta; // for struct argument to thread
         this.type_msg_memory = tmm;
-
     }
 
 
     //mainFunction
     public void enterMainFun(janusParser.MainFunContext ctx){
-            gc.declareFunction("main",2);
-            indent++;
+        gc.declareFunction("main",2);
+        indent++;
     }
 
     public void exitMainFun(janusParser.MainFunContext ctx){
@@ -71,14 +72,13 @@ public class janusWriteF extends janusBaseListener {
 
     public void exitFunction(janusParser.FunctionContext ctx){
         if(numfaj < 1) {//fork and join
-            //metto il join??
-            if(join == 1) {
-                parseTree = ctx;
-                threadJoin tj = new threadJoin();
-                walker.walk(tj, parseTree);
-                int count = tj.getForkCount();
-                gc.setJoinThread(indent,count);
-            }
+            //if(join == 1) {
+                //parseTree = ctx;
+                //threadJoin tj = new threadJoin();
+                //walker.walk(tj, parseTree);
+                //int count = tj.getForkCount();
+                //gc.setJoinThread(indent,count);
+            //}
             indent--;
             gc.setExitFunction(indent);
             gc.setBlankLine();
@@ -520,15 +520,27 @@ public class janusWriteF extends janusBaseListener {
 
 
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
+
         countforkandjoin += 2;
         numfaj ++;
+        //nidfork += 2;
 
+        //System.out.println("countforkandjoin + nidfork: " + (countforkandjoin + nidfork));
         if(numfaj <= 1) {//fork and join
             if(ctx.tagName() != null) {
-                gc.setforkandjoin(ctx.tagName().getText(),indent, countforkandjoin + nidfork, 0); // flag 0 = forward
+                if(nidfork > 1){//this for pass an struct address to thread
+                    gc.setforkandjoin("&"+ctx.tagName().getText(),indent,countforkandjoin + nidfork, 0); // flag 0 = forward
+                }
+                else {
+                    gc.setforkandjoin(ctx.tagName().getText(), indent, countforkandjoin + nidfork, 0); // flag 0 = forward
+                }
             }
             else{
                 gc.setforkandjoin("NULL",indent, countforkandjoin + nidfork, 0); // flag 0 = forward
+            }
+            // write pthread_join()
+            if(join == 0){
+                gc.setJoinThread(indent,countforkandjoin);
             }
         }
         /* old janusWriterTest
@@ -541,6 +553,8 @@ public class janusWriteF extends janusBaseListener {
     public void exitForkandjoin(janusParser.ForkandjoinContext ctx){
 
         numfaj--;
+        //countforkandjoin -= 2;
+        //System.out.println("count fork and join: " + countforkandjoin);
         //if(numfaj <= 1) {
             //gc.setJoinThread(indent,countforkandjoin + nidfork);
         //}

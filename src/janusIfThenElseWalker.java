@@ -10,6 +10,7 @@ public class janusIfThenElseWalker extends janusBaseListener {
     ParseTreeWalker walker = new ParseTreeWalker();
     int type_msg_memory = 0;
     boolean threadArg = false;
+    int join = 0;
 
 
     janusIfThenElseWalker(genereteCode genCode, int ind, int tmm){
@@ -18,11 +19,18 @@ public class janusIfThenElseWalker extends janusBaseListener {
         this.type_msg_memory = tmm;
     }
 
-    janusIfThenElseWalker(genereteCode genCode, int ind, int tmm,boolean ta){
+    janusIfThenElseWalker(genereteCode genCode, int ind, int tmm, boolean ta){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
         this.threadArg = ta;
+    }
+
+    janusIfThenElseWalker(genereteCode genCode, int ind, int tmm, int j){
+        this.gc = genCode;
+        this.indent = ind;
+        this.type_msg_memory = tmm;
+        this.join = j;
     }
 
     public void enterIfConstructor(janusParser.IfConstructorContext ctx){
@@ -204,7 +212,7 @@ public class janusIfThenElseWalker extends janusBaseListener {
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
-                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent);
+                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent,join);
                 walker.walk(jFW,parseTree);
             }
             else {

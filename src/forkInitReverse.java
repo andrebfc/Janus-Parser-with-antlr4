@@ -11,15 +11,17 @@ public class forkInitReverse extends janusBaseListener{
     boolean pass = false;
 
     int type_msg_memory = 0;
+    int join = 0;
 
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree parseTree;
 
     //constructor
-    forkInitReverse(genereteCode genCode, int ind, int tmm){
+    forkInitReverse(genereteCode genCode, int ind, int tmm,int j){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
+        this.join = j;
     }
 
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
@@ -49,16 +51,19 @@ public class forkInitReverse extends janusBaseListener{
 
         countForkandjoin += 1;
 
+        /*
         if(pass){
             fatherfork -= 2;
             if(ctx.tagName() != null) {
                 gc.setforkandjoin(ctx.tagName().getText(),indent, countForkandjoin - 2, 1); // -2 perchè è il padre
+                gc.setJoinThread(indent,countForkandjoin - 2);
             }
             else{
                 gc.setforkandjoin("NULL",indent, countForkandjoin - 2, 1); // -2 perchè è il padre
+                gc.setJoinThread(indent,countForkandjoin - 2);
             }
         }
-
+        */
 
         gc.setExitFunction(0);
 
@@ -101,6 +106,8 @@ public class forkInitReverse extends janusBaseListener{
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
+                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent,join);
+                walker.walk(jFW,parseTree);
                 fatherfork += 2;
                 return;
             }

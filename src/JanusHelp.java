@@ -10,7 +10,7 @@ public class JanusHelp {
         System.out.println();
         System.out.println("-s  :   Shared memory, the threads share data struct with a pointer");
         System.out.println();
-        System.out.println("-j  :   Include pthread_join, all threads waits to terminate");
+        System.out.println("-j  :   remove pthread_join");
         System.out.println();
         System.out.println("-n  :   No auto compile, for manually compile you must going into out folder and exec Makefile with " +
                 "name file as argument. For Example: make FILENAME=fibonacci ");

@@ -9,6 +9,7 @@ public class janusLoopWalker extends janusBaseListener  {
     ParseTreeWalker walker = new ParseTreeWalker();
     int type_msg_memory = 0;
     boolean threadArg = false;
+    int join = 0;
 
     //constructor
     janusLoopWalker(genereteCode genCode, int ind, int tmm){
@@ -22,6 +23,13 @@ public class janusLoopWalker extends janusBaseListener  {
         this.indent = ind;
         this.type_msg_memory = tmm;
         this.threadArg = ta;
+    }
+
+    janusLoopWalker(genereteCode genCode, int ind, int tmm, int j){
+        this.gc = genCode;
+        this.indent = ind;
+        this.type_msg_memory = tmm;
+        this.join = j;
     }
 
     //loop constructor
@@ -214,7 +222,7 @@ public class janusLoopWalker extends janusBaseListener  {
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
-                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent);
+                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent,join);
                 walker.walk(jFW,parseTree);
             }
 

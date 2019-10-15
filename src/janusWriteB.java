@@ -21,8 +21,9 @@ public class janusWriteB extends janusBaseListener{
     int type_msg_memory = 0;
     int join = 0; //  0 = no pthread_create
 
+
     //constructor
-    janusWriteB(genereteCode genCode, int ind, int tmm,int j){
+    janusWriteB(genereteCode genCode, int ind, int tmm, int j){
         this.gc = genCode;
         this.indent = ind;
         this.type_msg_memory = tmm;
@@ -38,7 +39,6 @@ public class janusWriteB extends janusBaseListener{
         this.depth = d;
     }
     */
-
 
     public void enterPortDeclare(janusParser.PortDeclareContext ctx){
         gc.setInitPort(ctx.port().getText(),indent);
@@ -61,6 +61,7 @@ public class janusWriteB extends janusBaseListener{
             childCount--;
         }
         //pthread join
+        /*
         if(join == 1) {
             parseTree = ctx;
             threadJoin tj = new threadJoin();
@@ -68,7 +69,7 @@ public class janusWriteB extends janusBaseListener{
             int count = tj.getForkCount();
             gc.setJoinThread(indent,count);
         }
-
+        */
         indent--;
 
         gc.setExitFunction(indent);
@@ -120,23 +121,21 @@ public class janusWriteB extends janusBaseListener{
 
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.IfConstructorContext") == 0){ //if constructor case
 
-                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory);
+                janusIfThenElseWalker jiw = new janusIfThenElseWalker(gc,indent,type_msg_memory,join);
                 walker.walk(jiw,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.LoopConstructorContext") == 0){ // loop case
 
-                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory);
+                janusLoopWalker jlW = new janusLoopWalker(gc,indent,type_msg_memory,join);
                 walker.walk(jlW,parseTree);
             }
             else if (parseTree.getClass().getCanonicalName().compareTo("janusParser.ForkandjoinContext") == 0){ // fork and join
-                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent);
+                janusForkandjoinWalker jFW = new janusForkandjoinWalker(gc,indent,join);
                 walker.walk(jFW,parseTree);
             }
-            else { // qualsiasi altra cosa quando non è Block Context
-
-                janusExpWalker jew = new janusExpWalker(gc,indent,type_msg_memory);
-                walker.walk(jew,parseTree);
-
+            else { // anythings else is not Block Context
+                janusExpWalker jew = new janusExpWalker(gc, indent, type_msg_memory);
+                walker.walk(jew, parseTree);
             }
 
         }

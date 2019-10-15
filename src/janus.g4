@@ -2,7 +2,7 @@
 
 grammar janus;
 
-program : functions? mainFun
+program :  functions? mainFun
         ;
 
 functions : function
@@ -17,8 +17,7 @@ mainFun : functionDeclaration portDeclare? block?
         ;
 */
 
-
-mainFun : 'procedure' 'main' '(' ')' portDeclare? block?
+mainFun : 'procedure' 'main' '(' ')'  portDeclare? block?
         ;
 
 
@@ -92,7 +91,6 @@ functionCall : call tagName '(' arguments? ')'
 
 condition : '('? value opcondition value ')'?
           | condition logicalExpression condition
-
           ;
 
 assignmentExpression : value assignmentOperator value
@@ -179,8 +177,8 @@ port : Text
      ;
 
 tagName : Text
-             | Text '_' Text
-             ;
+        | Text '_' Text
+        ;
 
 Text : [a-zA-Z_]+
      ;
