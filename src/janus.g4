@@ -12,10 +12,6 @@ functions : function
 function : functionDeclaration portDeclare? block? //functionBody
          ;
 
-/*
-mainFun : functionDeclaration portDeclare? block?
-        ;
-*/
 
 mainFun : 'procedure' 'main' '(' ')'  portDeclare? block?
         ;
@@ -23,10 +19,6 @@ mainFun : 'procedure' 'main' '(' ')'  portDeclare? block?
 
 functionDeclaration : 'procedure' tagName '(' parametersDeclaration? ')'
                     ;
-/*
-procedure : 'procedure'
-          ;
-*/
 
 
 //for the functions declaration
@@ -94,7 +86,6 @@ condition : '('? value opcondition value ')'?
           ;
 
 assignmentExpression : value assignmentOperator value
-                    // | tagName'.'value assignmentOperator value //this for struct
                      ;
 
 paramDecFun : type variableName array?
