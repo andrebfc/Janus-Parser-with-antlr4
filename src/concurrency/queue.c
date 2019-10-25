@@ -31,11 +31,11 @@ void DestructQueue(Queue *queue) {
 }
 
 int Enqueue(Queue *pQueue, NODE *item) {
-    /* Bad parameter */
+
     if ((pQueue == NULL) || (item == NULL)) {
         return FALSE;
     }
-    // if(pQueue->limit != 0)
+
     if (pQueue->size >= pQueue->limit) {
         return FALSE;
     }
@@ -79,10 +79,9 @@ int isEmpty(Queue* pQueue) {
 
 void asend(int data, NODE *pN, Queue *pQ,sem_t *mutex, sem_t *write, sem_t *read){
 
-    //sem_wait(&read);
     sem_wait(read);
     sem_wait(mutex);
-    //send
+
     pN = (NODE*) malloc(sizeof (NODE));
     pN->data.info = data;
     Enqueue(pQ, pN);
@@ -94,7 +93,7 @@ void asend(int data, NODE *pN, Queue *pQ,sem_t *mutex, sem_t *write, sem_t *read
 int arcv(NODE *pN, Queue *pQ, sem_t *mutex, sem_t *write, sem_t *read){
 
     int data = 0;
-    //sem_wait(&write);
+
     sem_wait(write);
     sem_wait(mutex);
     pN = Dequeue(pQ);
@@ -109,11 +108,10 @@ int arcv(NODE *pN, Queue *pQ, sem_t *mutex, sem_t *write, sem_t *read){
 
 void ssend(int data, NODE *pN, Queue *pQ,sem_t *mutex, sem_t *write, sem_t *read, sem_t *sync){
 
-      //asend code
-      //sem_wait(&read);
+
       sem_wait(read);
       sem_wait(mutex);
-      //send
+
       pN = (NODE*) malloc(sizeof (NODE));
       pN->data.info = data;
       Enqueue(pQ, pN);
@@ -121,7 +119,6 @@ void ssend(int data, NODE *pN, Queue *pQ,sem_t *mutex, sem_t *write, sem_t *read
       sem_post(mutex);
       sem_post(write);
 
-      //ssend code
       sem_wait(sync);
 
 }
@@ -130,7 +127,7 @@ int srcv(NODE *pN, Queue *pQ, sem_t *mutex, sem_t *write, sem_t *read, sem_t *sy
 
         //arcv code
         int data = 0;
-        //sem_wait(&write);
+
         sem_wait(write);
         sem_wait(mutex);
         pN = Dequeue(pQ);
