@@ -5,11 +5,10 @@ procedure first(int n)
     struct tosend
         int n
     end
-    tosend.n = n
+    tosend.n += n
 
     fork tosend
-        local int a = tosend.n // = 0
-        // a = tosend
+        local int a = tosend.n
         print a
         ssend(a,p)
         delocal int a = 0
@@ -19,9 +18,9 @@ procedure first(int n)
         print b
         delocal int b = tosend.n
     join
-    tosend.n = n
+    tosend.n -= n
 
 procedure main()
     int n
     n = 50
-    call first(n)
+    uncall first(n)

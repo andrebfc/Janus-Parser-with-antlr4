@@ -6,12 +6,15 @@ procedure fib(int x1, int x2, int n)
         n -= 1
         call fib(x1, x2, n)
         x1 += x2
-        x1 <=> x2
+        x1 <=> x2 // x2 deve essere il successore
+        print(x1)
     fi x1 = x2
 
 procedure main()
     int x1
     int x2
+    //x1 = 55
+    //x2 = 89
     int n
-    n += 4
+    n += 6
     call fib(x1, x2, n)
