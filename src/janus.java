@@ -1,3 +1,4 @@
+//this is a main function
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import java.io.*;
@@ -8,160 +9,38 @@ public class janus {
         File file;
         String filename;
 
-        // opt arg
-        int type_msg = 0; // 0 = message passing local struct, 1 = shared memory
-        int join = 0; //0 = no pthread_join
-        int no_compile = 0; // 0 = auto compile
-        int auto_run = 0; // 0 = no auto run
-        // for not repeat option, es: set memory before msg and after share, opt -jms is not valid
-        boolean set_type_msg = false;
-        boolean set_no_join = false;
-        boolean set_no_compile = false;
-        boolean set_auto_run = false;
-
-        int limit = 65000; // standar limit queue
-
-        //if call only help man
-        if(args[0].compareTo("-h") == 0 || args[0].compareTo("--help") == 0){
-            JanusHelp jh = new JanusHelp();
-            jh.printHelp();
-            System.exit(0);
-        }
-
-        //parsing arguments
-        if (args.length > 1) {
-            for (int i = 1; i < args.length; i++) {
-                if (args[i].charAt(0) == '-') {
-                    for (int j = 1; j < args[i].length(); j++) {//only args[i]
-                        if (args[i].charAt(j) == 'm') {
-                            if (!set_type_msg) {
-                                type_msg = 0;
-                                set_type_msg = true;
-                            } else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        } else if (args[i].charAt(j) == 's') {
-                            if (!set_type_msg) {
-                                type_msg = 1;
-                                set_type_msg = true;
-                            } else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        } else if (args[i].charAt(j) == 'j') {
-                            if (!set_no_join) {
-                                join = 1;
-                                set_no_join = true;
-                            } else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        } else if (args[i].charAt(j) == 'n') {
-                            if (!set_no_compile && !set_auto_run) {
-                                no_compile = 1;
-                                set_no_compile = true;
-                                set_auto_run = true;
-                            } else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        }
-                        else if (args[i].charAt(j) == 'r'){
-                            if(!set_no_compile && !set_auto_run){
-                                auto_run = 1;
-                                set_no_compile = true;
-                                set_auto_run = true;
-                            }
-                            else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        }
-                        else if (args[i].charAt(j) == 'h'){
-                            // only help option is allow
-                            if (!set_type_msg && !set_no_join && !set_no_compile && !set_auto_run){
-                                //System.out.println("stampo manuale opzioni ed esco");
-                                JanusHelp jh = new JanusHelp();
-                                jh.printHelp();
-                                System.exit(0);
-                            }
-                            else {
-                                System.out.println("Incorrect option\n");
-                                System.exit(1);
-                            }
-                        }
-                        else{
-                            System.out.println("Incorrect option\n");
-                            System.exit(1);
-                        }
-                    }
-                }
-                else if(args[i].charAt(0) == 'l'){ // define limit queue
-                    StringBuilder lim = new StringBuilder();
-                    int j = 0;
-                    while(args[i].charAt(j) != '='){
-                        lim.append(args[i].charAt(j));
-                        j++;
-                    }
-                    StringBuilder limit_value = new StringBuilder();
-                    if(lim.toString().compareTo("limit") == 0){
-                        for(j = j+1; j < args[i].length();j++){
-                            limit_value.append(args[i].charAt(j));
-                        }
-                    }
-                    else{
-                        System.out.println("Incorrect option\n");
-                        System.exit(1);
-                    }
-                    //copy limit value
-                    if(Integer.parseInt(limit_value.toString()) < limit) {
-                        limit = Integer.parseInt(limit_value.toString());
-                    }
-                }
-                else {
-                    System.out.println("Incorrect option\n");
-                    System.exit(1);
-                }
-            }
-        }
+        utility ut = new utility();
+        //set option arguments for parsing
+        ut.getArg(args);
 
         System.out.println("Starting parsing to " + args[0]);
 
+        //create object to generate code, check extension and create file to output
         genereteCode genCode = new genereteCode();
         genCode.checkExtension(args[0]);
         filename = args[0].substring(args[0].lastIndexOf("/") + 1, args[0].lastIndexOf("."));
         genCode.initFile(filename);
-        genCode.setInclude("#include <stdio.h>\n");
-        genCode.setInclude("#include <assert.h>\n");
-        genCode.setInclude("#include <math.h>\n");
-        genCode.setInclude("#include <stdlib.h>\n");
-        genCode.setInclude("#include <semaphore.h>\n");
-        genCode.setInclude("#include <string.h>\n");
-        genCode.setInclude("#include \"../concurrency/queue.h\"\n\n");
+        // set Include for c/c++
+        genCode.setStInclude();
 
-        genCode.setInclude("#define limit "+ limit +"\n\n");
-
-
+        //Lexer
         janusLexer lexer = new janusLexer(new ANTLRFileStream(args[0]));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-
+        //Parser
         janusParser parser = new janusParser(tokens);
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        //int toknum =
+        //use to set token number
         tokens.getNumberOfOnChannelTokens();
-        //System.out.println(toknum + " boh : " + tokens.getNumberOfOnChannelTokens());
-        //System.out.println("token text: " + tokens.get(1).getText());
-
-        ParseTree maintree;// = parser.mainFun();
+        //main tree
+        ParseTree maintree;
         //if first token is not main
         if(tokens.get(1).getText().compareTo("main") != 0){
 
             ParseTree tree = parser.functions();
 
-            //port and semaphore declaration
-            janusDecPort jWalkerP = new janusDecPort(genCode);
+            //port and semaphore declaration, if find fork and join set Include for concurrency
+            janusDecPort jWalkerP = new janusDecPort(genCode,ut);
             walker.walk(jWalkerP, tree);
 
             //Forward and reverse function declaration
@@ -175,27 +54,30 @@ public class janus {
             genCode.setBlankLine();
 
             //struct declaration
-            //ParseTree maintree = parser.mainFun();
-            //maintree = parser.mainFun();
-            janusStructDeclare structDeclare = new janusStructDeclare(genCode);
+            janusStructDeclare structDeclare = new janusStructDeclare(genCode,ut);
             walker.walk(structDeclare, tree);
-            //walker.walk(structDeclare, maintree);
+
+            //increment indent
+            ut.incIndent();
 
             //fork and join function forward, implements threads functions
-            forkInitForward forkin = new forkInitForward(genCode, 1, type_msg);//indent, //type msg passing memory
+            forkInitForward forkin = new forkInitForward(genCode, ut);
             walker.walk(forkin, tree);
 
             //fork and join function back, implements threads functions
-            forkInitReverse forkinB = new forkInitReverse(genCode, 1, type_msg, join);//generateCode, indent, type msg passing memory
+            forkInitReverse forkinB = new forkInitReverse(genCode, ut);
             walker.walk(forkinB, tree);
 
             genCode.setBlankLine();
+            //decrement indent
+            ut.decIndent();
+
             //forward
-            janusWriteF jWriterF = new janusWriteF(genCode, 0, type_msg, join);
+            janusWriteF jWriterF = new janusWriteF(genCode, ut);
             walker.walk(jWriterF, tree);
 
             //reverse
-            janusWriteB jWriteB = new janusWriteB(genCode, 0, type_msg, join);//type msg passing memory
+            janusWriteB jWriteB = new janusWriteB(genCode, ut);
             walker.walk(jWriteB, tree);
 
 
@@ -203,12 +85,12 @@ public class janus {
 
         //main
         maintree = parser.mainFun();
-        janusWriteF jWriterF = new janusWriteF(genCode, 0, type_msg, join);
+        janusWriteF jWriterF = new janusWriteF(genCode, ut);
         walker.walk(jWriterF, maintree);
 
 
         //compile and execute c program
-        if (no_compile == 0) { // ok to compile
+        if (ut.getCompile()) { // ok to compile
             try {
                 Process process = Runtime.getRuntime().exec("make -C ./src/out/ FILENAME=" + filename, null);
                 StringBuilder output = new StringBuilder();
@@ -224,7 +106,7 @@ public class janus {
                 int exitVal = process.waitFor();
 
                 // auto run
-                if (auto_run == 1) {
+                if (ut.getAutoRun()) {
                     try {
                         System.out.println("Execute " + filename);
                         String s = null;

@@ -1,3 +1,4 @@
+//This class count and declare fork and join constructor
 public class forkDecProgram extends janusBaseListener{
 
     genereteCode gc;

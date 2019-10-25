@@ -1,3 +1,4 @@
+// print option arguments
 public class JanusHelp {
 
 

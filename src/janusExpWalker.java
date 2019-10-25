@@ -3,180 +3,39 @@ import java.util.List;
 
 public class janusExpWalker extends janusBaseListener {
 
-    genereteCode gc;
-    List<String> namePar = new ArrayList<String>();
-    int indent;
-    boolean structPass = true;
-    boolean threadArg = false;
 
-    int type_msg_memory = 0;
+    List<String> namePar = new ArrayList<String>();
+    boolean structPass = true;
+
+    genereteCode gc;
+    utility ut;
+    janusRules r;
 
     //constructor
-    janusExpWalker(genereteCode genCode, int ind, int tmm){
+    janusExpWalker(genereteCode genCode, utility u){
         this.gc = genCode;
-        this.indent = ind;
-        this.type_msg_memory = tmm;
+        this.ut = u;
+
+        r = new janusRules(gc,ut);
     }
 
-    //constructor for argument struct thread
-    janusExpWalker(genereteCode genCode, int ind, boolean ta, int tmm){
-        this.gc = genCode;
-        this.indent = ind;
-        this.threadArg = ta;
-        this.type_msg_memory = tmm;
-    }
 
     //Param Declare
     public void enterParamDeclare(janusParser.ParamDeclareContext ctx) {
         if (structPass) {
-            if (ctx.value() != null) {
-                if (ctx.array() != null) { // if is array
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 1);
-                }
-                else if(ctx.value().tagName() != null) { // if is value of struct
-                    if (threadArg && type_msg_memory == 0) {
-                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),ctx.value().tagName().getText()+"."+ctx.value().value(0).getText(),indent,0);
-                    }
-                    else if(threadArg && type_msg_memory == 1){
-                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),"((struct " + ctx.value().tagName().getText()+"*)arg)->"+ctx.value().value(0).getText(), indent, 0);
-                    }
-                }
-                else {
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent, 0);
-                }
-            } else {
-                if (ctx.array() != null) {
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), "0", indent, 1);
-                } else {
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), "0", indent, 0);
-                }
-            }
+            r.ParamDeclare(ctx);
         }
     }
 
     //Local Param Declare
     public void enterLocalParamDeclare(janusParser.LocalParamDeclareContext ctx){
-        if(ctx.value() != null) {
-            if (ctx.local().getText().compareTo("delocal") == 0) {
-                if(ctx.array() != null) {
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent,1);
-                }
-                else if(ctx.value().tagName() != null){ // if is struct value
-                    if(threadArg && type_msg_memory == 0){
-                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),ctx.value().tagName().getText()+"."+ctx.value().value(0).getText(), indent, 0);
-                    }
-                    else if(threadArg && type_msg_memory == 1){
-                        gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(),"((struct " + ctx.value().tagName().getText()+"*)arg)->"+ctx.value().value(0).getText(), indent, 0);
-
-                    }
-                }
-                else{
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), ctx.value().getText(), indent,0);
-                }
-            }
-            else{//local => assert
-                //gc.setAssertCondition(ctx.variableName().getText(),ctx.assignmentOperator().getText(),ctx.value().getText(),0,indent);//on janus.g4 chang asssignmentoOperetator to opcondition
-                if(ctx.value().tagName() != null) { // if is struct value
-                    if (threadArg && type_msg_memory == 0) {
-                        gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),ctx.value().tagName().getText() + "." + ctx.value().value(0).getText(),0,indent);//for delocal, is a condition assert
-                    } else if (threadArg && type_msg_memory == 1) {
-                        gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),"((struct " + ctx.value().tagName().getText() + "*)arg)->" + ctx.value().value(0).getText(),0,indent);//for delocal, is a condition assert
-                    }
-                }
-                else{
-                    gc.setAssertCondition(ctx.variableName().getText(),ctx.opcondition().getText(),ctx.value().getText(),0,indent);//for delocal, is a condition assert
-
-                }
-            }
-        }
-        else{
-            if(ctx.array() != null) {
-                gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), "0", indent, 1);
-            }
-            else{
-                if (ctx.local().getText().compareTo("delocal") == 0) {
-                    gc.setParamDeclare(ctx.type().getText(), ctx.variableName().getText(), "0", indent, 0);
-                }
-                else{
-                    gc.setAssertCondition(ctx.variableName().getText(),"=","0",0,indent);
-                }
-
-            }
-        }
+        r.LocalParamDeclare(ctx,1);
     }
 
     //Assignment Expression
     public void enterAssignmentExpression(janusParser.AssignmentExpressionContext ctx){
-        /*
-        if(ctx.tagName() != null){
-            //for struct notation, namestruct->value
-            if(threadArg){//arg to thread
-                if(type_msg_memory == 0) { // 0 = message passing local struct
-                    gc.setAssignmentExpression(ctx.tagName().getText() + "." + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
 
-                }
-                else { // type_msg_memory = 1 => shared memory
-                    gc.setAssignmentExpression("((struct " + ctx.tagName().getText() + "*)arg)->" + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
-                }
-            }
-            else{
-                gc.setAssignmentExpression(ctx.tagName().getText() + "->" + ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent);//1 = reverse
-            }
-        }
-        else {
-            gc.setAssignmentExpression(ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent); // 1 = reverse
-        }
-        */
-        if(ctx.value(0).tagName() != null || ctx.value(1).tagName() != null){
-            String lvalue;
-            String rvalue;
-            if(threadArg) {
-                if (type_msg_memory == 0) {//arg to thread, 0 = message passing local struct
-                    if (ctx.value(0).tagName() != null) {
-                        lvalue = ctx.value(0).tagName().getText() + "." + ctx.value(0).value(0).getText();
-                    } else {
-                        lvalue = ctx.value(0).getText();
-                    }
-                    if (ctx.value(1).tagName() != null) {
-                        rvalue = ctx.value(1).tagName().getText() + "." + ctx.value(1).value(0).getText();
-                    } else {
-                        rvalue = ctx.value(1).getText();
-                    }
-                    gc.setAssignmentExpression(lvalue, ctx.assignmentOperator().getText(), rvalue, 1, indent);// 1 = reverse
-                } else if (type_msg_memory == 1) {//arg to thread, 1 = message passing shared struct
-                    if (ctx.value(0).tagName() != null) {
-                        lvalue = "((struct " + ctx.value(0).tagName().getText() + "*)arg)->" + ctx.value(0).value(0).getText();
-                    } else {
-                        lvalue = ctx.value(0).getText();
-                    }
-                    if (ctx.value(1).tagName() != null) {
-                        rvalue = "((struct " + ctx.value(1).tagName().getText() + "*)arg)->" + ctx.value(1).value(0).getText();
-                    } else {
-                        rvalue = ctx.value(1).getText();
-                    }
-                    gc.setAssignmentExpression(lvalue, ctx.assignmentOperator().getText(), rvalue, 1, indent);// 1 = reverse
-                }
-            }
-            else {//tag for function
-                if(ctx.value(0).tagName() != null){
-                    lvalue = ctx.value(0).tagName().getText() + "->" + ctx.value(0).value(0).getText();
-                }
-                else{
-                    lvalue = ctx.value(0).getText();
-                }
-                if(ctx.value(1).tagName() != null){
-                    rvalue = ctx.value(1).tagName().getText() + "->" + ctx.value(1).value(0).getText();
-                }
-                else{
-                    rvalue = ctx.value(1).getText();
-                }
-                gc.setAssignmentExpression(lvalue,ctx.assignmentOperator().getText(),rvalue,1,indent);// 1 = reverse
-
-            }
-        }
-        else {
-            gc.setAssignmentExpression(ctx.value(0).getText(), ctx.assignmentOperator().getText(), ctx.value(1).getText(), 1, indent); // 1 = reverse
-        }
+        r.AssignmentExpression(ctx,false); // false = reverse
 
     }
 
@@ -187,10 +46,10 @@ public class janusExpWalker extends janusBaseListener {
 
         if(ctx != null){
             if(ctx.call().getText().compareTo("call") == 0) {
-                gc.setFunctionCall(ctx.tagName().getText(), 1, indent); // 0 = call reverse
+                gc.setFunctionCall(ctx.tagName().getText(), 1); // 0 = call reverse
             }
             else {
-                gc.setFunctionCall(ctx.tagName().getText(), 0, indent); // 0 = uncall forward
+                gc.setFunctionCall(ctx.tagName().getText(), 0); // 0 = uncall forward
             }
         }
     }
@@ -208,64 +67,40 @@ public class janusExpWalker extends janusBaseListener {
     }
 
     public void enterPrint(janusParser.PrintContext ctx){
-        if(ctx.tagName()!=null){
-            if(threadArg){//arg to thread
-                if(type_msg_memory == 0) { // 0 = message passing local struct
-                    gc.setPrint(ctx.tagName().getText()+"." + ctx.value().getText(),indent);
-
-                }
-                else{// type_msg_memory = 1 => shared memory
-                    gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
-
-                }
-            }
-            else {
-                gc.setPrint(ctx.tagName().getText() + "->" + ctx.value().getText(), indent);
-            }
-        }
-        else {
-            gc.setPrint(ctx.value().getText(), indent);
-        }
+        r.janusPrint(ctx);
     }
 
     public void enterMsgpass(janusParser.MsgpassContext ctx){
         String type = "";
 
         if(ctx.typemsg().getText().compareTo("ssend") == 0){
-            //gc.setMsgpass("srcv",ctx.variableName().getText(),ctx.port().getText(),indent);
             type = "srcv";
         }
         else if(ctx.typemsg().getText().compareTo("srcv") == 0){
-            //gc.setMsgpass("ssend",ctx.variableName().getText(),ctx.port().getText(),indent);
             type = "ssend";
         }
         else if(ctx.typemsg().getText().compareTo("asend") == 0){
-            //gc.setMsgpass("arcv",ctx.variableName().getText(),ctx.port().getText(),indent);
             type = "arcv";
         }
         else if(ctx.typemsg().getText().compareTo("arcv") == 0){
-            //gc.setMsgpass("asend",ctx.variableName().getText(),ctx.port().getText(),indent);
             type = "asend";
         }
 
         if(ctx.tagName() != null){
-            if(threadArg){//arg to thread
-                //gc.setPrint("((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(),indent);
-                if(type_msg_memory == 0) { // 0 = message passing local struct
-                    gc.setMsgpass(type, ctx.tagName().getText()+"." + ctx.value().getText(), ctx.port().getText(), indent);
-
+            if(ut.getThreadArg()){//arg to thread
+                if(ut.getTypeMsg() == 0) { // 0 = message passing local struct
+                    gc.setMsgpass(type, ctx.tagName().getText()+"." + ctx.value().getText(), ctx.port().getText());
                 }
                 else{// type_msg_memory = 1 => shared memory
-                    gc.setMsgpass(type, "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText(), indent);
-
+                    gc.setMsgpass(type, "((struct "+ ctx.tagName().getText()+"*)arg)->" + ctx.value().getText(), ctx.port().getText());
                 }
             }
             else{ // if not a thread
-                gc.setMsgpass(type, ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText(), indent);
+                gc.setMsgpass(type, ctx.tagName().getText() + "->" + ctx.value().getText(), ctx.port().getText());
             }
         }
         else {
-            gc.setMsgpass(type, ctx.variableName().getText(), ctx.port().getText(), indent);
+            gc.setMsgpass(type, ctx.variableName().getText(), ctx.port().getText());
         }
 
     }

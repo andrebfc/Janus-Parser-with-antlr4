@@ -1,52 +1,62 @@
+// this class inizialize threads for fork and join
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class forkInitForward extends janusBaseListener{
 
-    genereteCode gc;
     static int countForkandjoin = 0;
-    int indent;
+
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree parseTree;
-    int type_msg_memory = 0;
+
+    utility ut;
+    genereteCode gc;
 
     //constructor
-    forkInitForward(genereteCode genCode, int ind, int tmm){
+    forkInitForward(genereteCode genCode, utility u){
         this.gc = genCode;
-        this.indent = ind;
-        this.type_msg_memory = tmm;
+        this.ut = u;
     }
 
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
         countForkandjoin += 2;
         gc.setSingleFork(countForkandjoin-1,0);
+
+
         //set and copy struct for local message passing
-        if(ctx.tagName() != null && type_msg_memory == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText(),indent);
-            gc.setCpyStruct(ctx.tagName().getText(),indent);
+        if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
+            gc.setLocalStruct(ctx.tagName().getText());
+            gc.setCpyStruct(ctx.tagName().getText());
         }
 
         parseTree = ctx.block(0);
-        janusWriteF jW = new janusWriteF(gc,indent,countForkandjoin,ctx.block(0).depth()+1,true,type_msg_memory);
-        walker.walk(jW,parseTree);
-        gc.setExitFunction(0);
 
-        //countForkandjoin += 1;
+        ut.setThreadArg(true); // set thread Argument true
+        //first thread fork and join walk
+        janusWriteF jW = new janusWriteF(gc,countForkandjoin,ut);
+        walker.walk(jW,parseTree);
+
+        gc.setExitFunction();
+
+        ut.setThreadArg(false); // set thread Argument false after walk
 
         gc.setSingleFork(countForkandjoin,0);
 
         //set and copy struct for local message passing
-        if(ctx.tagName() != null && type_msg_memory == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText(),indent);
-            gc.setCpyStruct(ctx.tagName().getText(),indent);
+        if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
+            gc.setLocalStruct(ctx.tagName().getText());
+            gc.setCpyStruct(ctx.tagName().getText());
         }
 
         parseTree = ctx.block(1);
-        //janusWriteF jW2 = new janusWriteF(gc,indent,countForkandjoin,depth,true,type_msg_memory);
-        janusWriteF jW2 = new janusWriteF(gc,indent,countForkandjoin,ctx.block(0).depth()+2,true,type_msg_memory);
+        ut.setThreadArg(true);// set thread Argument true
+        //second thread fork and join walk
+        janusWriteF jW2 = new janusWriteF(gc,countForkandjoin,ut);
         walker.walk(jW2,parseTree);
-        gc.setExitFunction(0);
 
+        gc.setExitFunction();
+
+        ut.setThreadArg(false);// set thread Argument false after walk
     }
 
 

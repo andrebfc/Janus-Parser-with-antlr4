@@ -1,3 +1,4 @@
+// this class write declaration functions
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,9 +56,9 @@ public class janusDecFun extends janusBaseListener {
     public void exitFunctionDeclaration(janusParser.FunctionDeclarationContext ctx){
         if(ctx.parametersDeclaration() != null) {
             if (ctx.parametersDeclaration().paramDecFun().array() == null) {
-                gc.setParamsDeclFunc(typePar, namePar, 0);// flag 0 = '&' // cambio a 1 per passaggio riferimento in c
+                gc.setParamsDeclFunc(typePar, namePar, 0);// flag 0 = '&'
             } else {
-                gc.setParamsDeclFunc(typePar, namePar, 0);// flag 1 = '*'
+                gc.setParamsDeclFunc(typePar, namePar, 1);// flag 1 = '*'
             }
         }
         if(ctx.tagName().getText().compareTo("main") != 0) {
