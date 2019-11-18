@@ -25,8 +25,8 @@ public class forkInitForward extends janusBaseListener{
 
         //set and copy struct for local message passing
         if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText());
-            gc.setCpyStruct(ctx.tagName().getText());
+            gc.setLocalStruct(ctx.tagName().getText(),ctx.variableName().getText());
+            gc.setCpyStruct(ctx.tagName().getText(),ctx.variableName().getText());
         }
 
         parseTree = ctx.block(0);
@@ -44,8 +44,8 @@ public class forkInitForward extends janusBaseListener{
 
         //set and copy struct for local message passing
         if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText());
-            gc.setCpyStruct(ctx.tagName().getText());
+            gc.setLocalStruct(ctx.tagName().getText(),ctx.variableName().getText());
+            gc.setCpyStruct(ctx.tagName().getText(),ctx.variableName().getText());
         }
 
         parseTree = ctx.block(1);

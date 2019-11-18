@@ -6,7 +6,6 @@ public class janusDecPort extends janusBaseListener {
     genereteCode gc;
     utility ut;
 
-
     //constructor
     janusDecPort(genereteCode genCode, utility u) {
         this.gc = genCode;
@@ -16,13 +15,27 @@ public class janusDecPort extends janusBaseListener {
     //port
     public void enterPortDeclare(janusParser.PortDeclareContext ctx) {
         //load include file if find a port
-        gc.setInclude4threads(ut.getLimit());
+        if(ut.getIncludeThread()){
+            gc.setInclude4threads(ut.getLimit());
+        }
         gc.setlibinclude(true);
-
         gc.setPort(ctx.port().getText());
-
     }
 
+
+    //local port
+    public void enterLocalPortDeclare(janusParser.LocalPortDeclareContext ctx){
+        //load include file if find a port
+        if(ut.getIncludeThread()){
+            gc.setInclude4threads(ut.getLimit());
+        }
+        gc.setlibinclude(true);
+        if(ctx.local().getText().compareTo("local") == 0) {
+            gc.setPort(ctx.port().getText());
+        }
+    }
+
+    //fork and join
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx) {
         if(!gc.getlibinclude()){
             gc.setInclude4threads(ut.getLimit());
@@ -33,5 +46,7 @@ public class janusDecPort extends janusBaseListener {
         gc.setPthreadDeclare(countForkandjoin);
 
     }
+
+
 
 }

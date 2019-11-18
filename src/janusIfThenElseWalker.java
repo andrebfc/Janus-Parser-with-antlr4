@@ -58,12 +58,12 @@ public class janusIfThenElseWalker extends janusBaseListener {
     }
 
     public void exitIfExpression(janusParser.IfExpressionContext ctx){
-       if(depth == ctx.depth() - 1) {
-           gc.openAssertCondition(0); // 0 = real condition
-           r.condition(ctx.condition());
-           gc.closeAssertCondition(0);
-           ut.decIndent();
-       }
+        if(depth == ctx.depth() - 1) {
+            gc.openAssertCondition(0); // 0 = real condition
+            r.condition(ctx.condition());
+            gc.closeAssertCondition(0);
+            ut.decIndent();
+        }
     }
 
     public void getFiCondition(janusParser.IfConstructorContext ctx){
@@ -91,14 +91,14 @@ public class janusIfThenElseWalker extends janusBaseListener {
     }
 
     public void exitElseExpression(janusParser.ElseExpressionContext ctx){
-          if(depth == ctx.depth() - 1) {
-              gc.openAssertCondition(1); // 1 = neg
-              this.getIfCondition((janusParser.IfConstructorContext) ctx.getParent());
-              gc.closeAssertCondition(1);
-              //indent--;
-              ut.decIndent();
-              gc.setExitFunction();
-          }
+        if(depth == ctx.depth() - 1) {
+            gc.openAssertCondition(1); // 1 = neg
+            this.getIfCondition((janusParser.IfConstructorContext) ctx.getParent());
+            gc.closeAssertCondition(1);
+            //indent--;
+            ut.decIndent();
+            gc.setExitFunction();
+        }
     }
 
     public void getIfCondition(janusParser.IfConstructorContext ctx){

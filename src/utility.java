@@ -17,6 +17,8 @@ public class utility {
     private static int indent = 0;
     // thread Argument
     private static boolean threadArg = false;
+    // thread include
+    public static boolean includeThread = true;
 
     public void getArg(String[] args){
         //if call only help man
@@ -167,6 +169,14 @@ public class utility {
 
     public boolean getThreadArg(){
         return this.threadArg;
+    }
+
+    public void setIncludeTrhread(){
+        this.includeThread = false;
+    }
+
+    public boolean getIncludeThread(){
+        return this.includeThread;
     }
 
 

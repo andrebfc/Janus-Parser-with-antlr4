@@ -33,8 +33,8 @@ public class forkInitReverse extends janusBaseListener{
         //block 0
         //set and copy struct for local message passing
         if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText());
-            gc.setCpyStruct(ctx.tagName().getText());
+            gc.setLocalStruct(ctx.tagName().getText(),ctx.variableName().getText());
+            gc.setCpyStruct(ctx.tagName().getText(),ctx.variableName().getText());
         }
 
         int childCount = ctx.block(0).getChildCount();
@@ -56,8 +56,8 @@ public class forkInitReverse extends janusBaseListener{
         //block 1
         //set and copy struct for local message passing
         if(ctx.tagName() != null && ut.getTypeMsg() == 0){ //tagName is struct argument
-            gc.setLocalStruct(ctx.tagName().getText());
-            gc.setCpyStruct(ctx.tagName().getText());
+            gc.setLocalStruct(ctx.tagName().getText(),ctx.variableName().getText());
+            gc.setCpyStruct(ctx.tagName().getText(),ctx.variableName().getText());
         }
 
         childCount = ctx.block(1).getChildCount();

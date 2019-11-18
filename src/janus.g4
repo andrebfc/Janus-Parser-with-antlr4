@@ -47,11 +47,19 @@ block        : localParamDeclare
              | msgpass block
              | struct
              | struct block
+             | localPortDeclare
+             | localPortDeclare block
+             | structInit
+             | structInit block
              ;
 
 portDeclare : 'port' port portDeclare?
             | 'port' port
             ;
+
+localPortDeclare : local 'port' port portDeclare?
+                 | local 'port' port
+                 ;
 
 loopConstructor : 'from' condition doExp? loopExp? 'until' condition
                 ;
@@ -75,7 +83,7 @@ elseExpression : 'else' block
 fiExpression : 'fi' condition
              ;
 
-forkandjoin : 'fork' tagName? block 'and' block 'join' // tagName is struct argument
+forkandjoin : 'fork' (tagName variableName)? block 'and' block 'join' // tagName is struct argument
             ;
 
 functionCall : call tagName '(' arguments? ')'
@@ -108,6 +116,9 @@ print : 'print' value
 
 struct : 'struct' tagName paramDeclare 'end'
        ;
+
+structInit : 'struct' tagName structName
+           ;
 
 msgpass : typemsg '(' variableName ',' port ')'
         | typemsg '(' tagName'.'value ',' port ')'
@@ -148,6 +159,12 @@ value : variableName array?
 
 
 variableName : Text
+             | TextDigit
+             //| tagName'.'value
+             ;
+
+
+structName : Text
              | TextDigit
              //| tagName'.'value
              ;

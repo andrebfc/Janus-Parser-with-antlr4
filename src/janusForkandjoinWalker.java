@@ -24,18 +24,16 @@ public class janusForkandjoinWalker extends janusBaseListener  {
         if (numfaj < 1){// only exit fork and join, if number fork and join >= 1 the function does nothing
             if(ctx.tagName() != null) {//there is struct argument fork and join
                 if(gc.getForkandjoinvar() > 2){//this for pass an struct address to thread
-                    gc.setforkandjoin("&"+ctx.tagName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
+                    //gc.setforkandjoin("&"+ctx.tagName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
+                    gc.setforkandjoin("&"+ctx.variableName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
                 }
                 else {
-                    gc.setforkandjoin(ctx.tagName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
+                    //gc.setforkandjoin(ctx.tagName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
+                    gc.setforkandjoin(ctx.variableName().getText(), gc.getForkandjoinvar(), 1); // 1 = reverse
                 }
             }
             else{// no struct argument for fork and join
                 gc.setforkandjoin("NULL", gc.getForkandjoinvar(), 1); // 1 = reverse
-            }
-            // write pthread_join()
-            if(ut.getJoin()){ // if join = true write join thread fun
-                gc.setJoinThread(gc.getForkandjoinvar());
             }
             gc.setForkandjoinvar(2);
             //reset number fork and join for subtree

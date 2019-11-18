@@ -1,4 +1,4 @@
-// this class is tools to write a c/c++ code in a file
+// this class is tools to write a c++ code in a file
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -66,6 +66,8 @@ public class genereteCode {
         this.appendStrToFile("#include <string.h>\n");
         this.appendStrToFile("#include \"../concurrency/queue.h\"\n\n");
         this.appendStrToFile("#define limit " + limit + "\n\n");
+
+        ut.setIncludeTrhread(); //this for not include this library more times
 
 
     }
@@ -325,20 +327,6 @@ public class genereteCode {
         this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
     }
 
-    public void setJoinThread(int n){
-        /* for join after pthread_create
-        for(int i = 1; i <= n;i++){
-            this.setTab(indent);
-            this.appendStrToFile("pthread_join(p"+ i + ",NULL);\n");
-        }
-
-        this.setTab(indent);
-        this.appendStrToFile("pthread_join(p"+ (n-1) + ",NULL);\n");
-        this.setTab(indent);
-        this.appendStrToFile("pthread_join(p" + n + ",NULL);\n\n");
-        */
-    }
-
     // pthread functions
     public void setforkandjoinDeclare(int n,int flag){ // 0 = forward, 1 = reverse
         this.forkandjoinvar = n;
@@ -445,21 +433,21 @@ public class genereteCode {
     }
 
     //inizialize struct
-    public void initStruct(String name){
+    public void initStruct(String typeName, String structName){
         this.setTab(ut.getIndent());
-        this.appendStrToFile("struct " + name + " *" + name + "=(struct "+name+"*)malloc(sizeof(struct "+name+"));\n\n");
+        this.appendStrToFile("struct " + typeName + " *" + structName + "=(struct "+typeName+"*)malloc(sizeof(struct "+typeName+"));\n\n");
     }
 
     // set struct
-    public void setLocalStruct(String struct_name){
+    public void setLocalStruct(String struct_name, String localStrucName){
         this.setTab(ut.getIndent());
-        this.appendStrToFile("struct " + struct_name + " " + struct_name + ";\n");
+        this.appendStrToFile("struct " + struct_name + " " + localStrucName + ";\n");
     }
 
     //copy struct with memcpy
-    public void setCpyStruct(String struct_name){
+    public void setCpyStruct(String struct_name, String localStrucName){
         this.setTab(ut.getIndent());
-        this.appendStrToFile("memcpy(&" + struct_name + ",(struct " + struct_name + "*)arg,sizeof(" + struct_name + "));\n");
+        this.appendStrToFile("memcpy(&" + localStrucName + ",(struct " + struct_name + "*)arg,sizeof(" + struct_name + "));\n");
     }
 
 

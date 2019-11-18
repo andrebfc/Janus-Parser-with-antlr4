@@ -36,6 +36,10 @@ public class janusWriteB extends janusBaseListener{
         gc.setInitPort(ctx.port().getText());
     }
 
+    public void enterLocalPortDeclare(janusParser.LocalPortDeclareContext ctx){
+        gc.setInitPort(ctx.port().getText());
+    }
+
     //function
     public void enterFunction(janusParser.FunctionContext ctx){
         gc.declareFunction(ctx.functionDeclaration().tagName().getText(),1);
@@ -87,10 +91,10 @@ public class janusWriteB extends janusBaseListener{
         namePar.clear();
     }
 
-    //struct init, before possible increment or assignment expression
-    public void enterStruct(janusParser.StructContext ctx){
-        gc.initStruct(ctx.tagName().getText());
 
+    //struct init, before possible increment or assignment expression
+    public void enterStructInit(janusParser.StructInitContext ctx){
+        gc.initStruct(ctx.tagName().getText(),ctx.structName().getText());
     }
 
 }

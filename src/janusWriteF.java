@@ -303,18 +303,14 @@ public class janusWriteF extends janusBaseListener {
         if(numfaj <= 1) {//fork and join
             if(ctx.tagName() != null) {
                 if(nidfork > 1){//this for pass an struct address to thread
-                    gc.setforkandjoin("&"+ctx.tagName().getText(),countforkandjoin + nidfork, 0); // flag 0 = forward
+                    gc.setforkandjoin("&"+ctx.variableName().getText(),countforkandjoin + nidfork, 0); // flag 0 = forward
                 }
                 else {
-                    gc.setforkandjoin(ctx.tagName().getText(),countforkandjoin + nidfork, 0); // flag 0 = forward
+                    gc.setforkandjoin(ctx.variableName().getText(),countforkandjoin + nidfork, 0); // flag 0 = forward
                 }
             }
             else{
                 gc.setforkandjoin("NULL", countforkandjoin + nidfork, 0); // flag 0 = forward
-            }
-            // write pthread_join()
-            if(ut.getJoin()){ // if join = true write join thread fun, is default
-                gc.setJoinThread(countforkandjoin);
             }
         }
     }
@@ -329,15 +325,25 @@ public class janusWriteF extends janusBaseListener {
         gc.setInitPort(ctx.port().getText());
     }
 
+    public void enterLocalPortDeclare(janusParser.LocalPortDeclareContext ctx){
+        gc.setInitPort(ctx.port().getText());
+    }
 
     public void enterStruct(janusParser.StructContext ctx){
         structPass = false;
-        //init struct
-        gc.initStruct(ctx.tagName().getText());
     }
 
     public void exitStruct(janusParser.StructContext ctx){
-       structPass = true;
+        structPass = true;
+    }
+
+    public void enterStructInit(janusParser.StructInitContext ctx){
+        structPass = false;
+        gc.initStruct(ctx.tagName().getText(),ctx.structName().getText());
+    }
+
+    public void exitStructInit(janusParser.StructInitContext ctx){
+        structPass = true;
     }
 
 }

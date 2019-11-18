@@ -34,6 +34,8 @@ public class janus {
         tokens.getNumberOfOnChannelTokens();
         //main tree
         ParseTree maintree;
+
+
         //if first token is not main
         if(tokens.get(1).getText().compareTo("main") != 0){
 
@@ -79,8 +81,6 @@ public class janus {
             //reverse
             janusWriteB jWriteB = new janusWriteB(genCode, ut);
             walker.walk(jWriteB, tree);
-
-
         }
 
         //main
