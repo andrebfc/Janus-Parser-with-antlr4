@@ -1,0 +1,53 @@
+//A janus example sender-receiver with multi data
+
+procedure second(int n)
+    local port p
+
+    struct mystruct
+        int m
+    end
+
+    struct mystruct tosend
+
+    tosend.m += n
+
+    fork mystruct tosend
+        local int a = 0
+        local int i = 0
+        from i = 0 loop
+            i += 1
+            a += tosend.m
+            print a
+            asend(a,p)
+        until i = tosend.m
+        delocal int a = 0
+        delocal int i = tosend.m
+    and
+        local int b = 0
+        local int j = 0
+        from j = 0 loop
+            arcv(b,p)
+            //print b
+            b -= tosend.m //aggiunta
+            j += 1
+        until j = tosend.m
+        //delocal int b = tosend.m
+        delocal int b = 0
+        delocal int j = tosend.m
+
+    join
+
+    tosend.m -= n
+
+    delocal port p
+
+//forward
+//fallisce assert prima della arcv(b,p) a riga 27 del secondo programma, perchè b ha valore tosend.m
+
+//reverse
+//fallisce assert della receive perchè
+
+procedure main()
+    int n
+    n = 50
+    call second(n)

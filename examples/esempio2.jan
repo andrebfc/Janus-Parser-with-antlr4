@@ -1,0 +1,61 @@
+//A janus example with four processes and multi data
+
+procedure third(int n)
+    port p
+    port q
+
+    struct mystruct
+        int m
+    end
+
+    struct mystruct tosend
+
+    tosend.m += n
+
+    fork mystruct tosend
+        local int a = 0
+        local int i = 0
+        from i = 0 loop
+             i += 1
+             a += tosend.m
+             print a
+             asend(a,p)
+        until i = tosend.m
+        delocal int a = 0
+        delocal int i = tosend.m
+    and
+        fork mystruct tosend
+           local int b = 0
+           local int j = 0
+           from j = 0 loop
+                 arcv(b,p)
+                 print b
+                 asend(b,q)
+                 //b -= tosend.m no perchè azzera la send
+                 j += 1
+           until j = tosend.m
+           delocal int b = 0
+           delocal int j = tosend.m
+        and
+           local int c = 0
+           local int h = 0
+           from h = 0 loop
+                arcv(c,q)
+                print c
+                c -= tosend.m
+                h += 1
+           until h = tosend.m
+           delocal int c = 0
+           delocal int h = tosend.m
+        join
+    join
+
+    tosend.m -= n
+
+    delocal port p
+    delocal port q
+
+procedure main()
+    int n
+    n = 50
+    call third(n)
