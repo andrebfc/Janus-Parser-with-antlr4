@@ -85,6 +85,10 @@ Struct data can be defined similar a C syntax,
         ....
     end
     
+Struct data can be initialized into a function using similar C syntax,
+
+    struct [tagName] [structName]    
+    
 and using dot notation to access the variable.
 
     [tagName].[Var]    
