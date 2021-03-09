@@ -12,6 +12,8 @@ public class janusWriteF extends janusBaseListener {
     boolean structPass = true;
     static int numfaj = 0;
 
+    boolean structInForkAndJoin = false;
+
     List<String> typePar = new ArrayList<String>();
     List<String> namePar = new ArrayList<String>();
     List<Integer> argsTh = new ArrayList<>();
@@ -296,7 +298,7 @@ public class janusWriteF extends janusBaseListener {
 
 
     public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
-
+        structInForkAndJoin = true; // se sono all'interno di un fork and join non dichiaro la struttura
         countforkandjoin += 2;
         numfaj ++;
 
@@ -316,7 +318,7 @@ public class janusWriteF extends janusBaseListener {
     }
 
     public void exitForkandjoin(janusParser.ForkandjoinContext ctx){
-
+        structInForkAndJoin = false;
         numfaj--;
     }
 
@@ -326,7 +328,10 @@ public class janusWriteF extends janusBaseListener {
     }
 
     public void enterLocalPortDeclare(janusParser.LocalPortDeclareContext ctx){
-        gc.setInitPort(ctx.port().getText());
+        if(ctx.local() != null && ctx.local().getText().compareTo("local") == 0){
+            gc.setInitPort(ctx.port().getText());
+        }
+
     }
 
     public void enterStruct(janusParser.StructContext ctx){
@@ -339,7 +344,21 @@ public class janusWriteF extends janusBaseListener {
 
     public void enterStructInit(janusParser.StructInitContext ctx){
         structPass = false;
-        gc.initStruct(ctx.tagName().getText(),ctx.structName().getText());
+
+        if(!structInForkAndJoin) {// se sono all'interno di un fork and join non dichiaro la struttura
+            if (ctx.local() != null) {
+                if ("local".compareTo(ctx.local().getText()) == 0) {
+                    gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+                }
+                else if ("delocal".compareTo(ctx.local().getText()) == 0){
+                    //TODO
+                    //else is is delocal
+                }
+            } else {
+                gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+            }
+        }
+
     }
 
     public void exitStructInit(janusParser.StructInitContext ctx){

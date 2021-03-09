@@ -15,6 +15,8 @@ public class janusWriteB extends janusBaseListener{
     int nidfork = 0;
     int depth = 0;
 
+    boolean structInForkAndJoin = false;
+
     //Parse for fork and join count
     ParseTreeWalker walker = new ParseTreeWalker();
     ParseTree parseTree;
@@ -33,11 +35,22 @@ public class janusWriteB extends janusBaseListener{
 
 
     public void enterPortDeclare(janusParser.PortDeclareContext ctx){
-        gc.setInitPort(ctx.port().getText());
+            gc.setInitPort(ctx.port().getText());
     }
 
     public void enterLocalPortDeclare(janusParser.LocalPortDeclareContext ctx){
-        gc.setInitPort(ctx.port().getText());
+        if(ctx.local() != null && ctx.local().getText().compareTo("delocal") == 0) {
+            gc.setInitPort(ctx.port().getText());
+        }
+    }
+
+    public void enterForkandjoin(janusParser.ForkandjoinContext ctx){
+        structInForkAndJoin = true; // se sono all'interno di un fork and join non dichiaro la struttura
+
+    }
+
+    public void exitForkandjoin(janusParser.ForkandjoinContext ctx){
+        structInForkAndJoin = false;
     }
 
     //function
@@ -93,8 +106,22 @@ public class janusWriteB extends janusBaseListener{
 
 
     //struct init, before possible increment or assignment expression
+    /*
     public void enterStructInit(janusParser.StructInitContext ctx){
-        gc.initStruct(ctx.tagName().getText(),ctx.structName().getText());
+
+        if(!structInForkAndJoin) {// se sono all'interno di un fork and join non dichiaro la struttura
+            if (ctx.local() != null) {
+                if ("delocal".compareTo(ctx.local().getText()) == 0) {
+                    gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+                } else if ("local".compareTo(ctx.local().getText()) == 0) {
+                    //TODO
+                    //else if is local
+                }
+            } else {
+                gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+            }
+        }
     }
+    */
 
 }

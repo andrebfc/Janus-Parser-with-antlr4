@@ -9,6 +9,7 @@ public class janus {
         File file;
         String filename;
 
+        manageFileOut mfo = new manageFileOut();
         utility ut = new utility();
         //set option arguments for parsing
         ut.getArg(args);
@@ -35,7 +36,22 @@ public class janus {
         //main tree
         ParseTree maintree;
 
+        ParseTree structTree;
 
+
+        //se è uguale a struct dichiaro la struct
+        if(tokens.get(0).getText().compareTo("struct") == 0){
+            System.out.println(tokens.get(0).getText());
+            structTree = parser.struct();
+
+            janusStructDeclare structDeclare = new janusStructDeclare(genCode,ut);
+            walker.walk(structDeclare, structTree);
+        }
+        //if(parser.struct() != null && !parser.struct().isEmpty()){
+            //struct declaration
+            //janusStructDeclare structDeclare = new janusStructDeclare(genCode,ut);
+            //walker.walk(structDeclare, structTree);
+        //}
         //if first token is not main
         if(tokens.get(1).getText().compareTo("main") != 0){
 
@@ -56,8 +72,8 @@ public class janus {
             genCode.setBlankLine();
 
             //struct declaration
-            janusStructDeclare structDeclare = new janusStructDeclare(genCode,ut);
-            walker.walk(structDeclare, tree);
+            //janusStructDeclare structDeclare = new janusStructDeclare(genCode,ut);
+            //walker.walk(structDeclare, tree);
 
             //increment indent
             ut.incIndent();
@@ -87,6 +103,10 @@ public class janus {
         maintree = parser.mainFun();
         janusWriteF jWriterF = new janusWriteF(genCode, ut);
         walker.walk(jWriterF, maintree);
+
+
+        mfo.initFile(filename);
+        mfo.writeFile("ciaociao");
 
 
         //compile and execute c program
@@ -139,6 +159,7 @@ public class janus {
                 }
 
                 if (exitVal == 0) {
+                    System.out.println("End program");
                     System.exit(0);
                 } else {
                     System.out.println("Error make c++ compile, try to compile into out folder");
@@ -152,6 +173,10 @@ public class janus {
             }
 
         }
+
+
+        System.out.println("End program");
+
     }
 }
 

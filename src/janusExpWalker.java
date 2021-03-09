@@ -115,4 +115,21 @@ public class janusExpWalker extends janusBaseListener {
 
     }
 
+    //struct init, before possible increment or assignment expression
+    public void enterStructInit(janusParser.StructInitContext ctx){
+
+        //if(!structInForkAndJoin) {// se sono all'interno di un fork and join non dichiaro la struttura
+            if (ctx.local() != null) {
+                if ("delocal".compareTo(ctx.local().getText()) == 0) {
+                    gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+                } else if ("local".compareTo(ctx.local().getText()) == 0) {
+                    //TODO
+                    //else if is local
+                }
+            } else {
+                gc.initStruct(ctx.tagName().getText(), ctx.structName().getText());
+            }
+        //}
+    }
+
 }

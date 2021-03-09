@@ -117,7 +117,7 @@ print : 'print' value
 struct : 'struct' tagName paramDeclare 'end'
        ;
 
-structInit : 'struct' tagName structName
+structInit : local? 'struct' tagName structName
            ;
 
 msgpass : typemsg '(' variableName ',' port ')'
