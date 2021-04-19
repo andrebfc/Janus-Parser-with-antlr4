@@ -169,7 +169,7 @@ Fork and Join constructor allows the user to passing data in P1 and P2 using 'st
 ### Message passing
 
 There are two way to use message passing, the first is message passing with local memory, this is a default option or 
-activable with -m flag. The sencond way is message passing with shared memory, where the struct on the thread are shared, 
+activable with -m flag. The second way is message passing with shared memory, where the struct on the thread are shared, 
 this option is activable with -s flag.
 
 Example:
@@ -197,9 +197,9 @@ If you want to be sure to see the printed value when using the fork and join, yo
 
 ## Local and shared memory
 
-On this janus interpreter is possible to select type of memory on processes. 
+On this janus interpreter it is possible to select type of memory on processes. 
 
-In local memory (default) the 'fork and join' processes make a copy of the scructure and use this, you can use this option using the -m flag or nothing in the parsing phase.
+In local memory (default) the 'fork and join' processes make a copy of the structure and use this, you can use this option using the -m flag or nothing in the parsing phase.
 
 Example:
     
